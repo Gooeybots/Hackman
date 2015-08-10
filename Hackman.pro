@@ -8,8 +8,14 @@ QMAKE_CXXFLAGS += \
     -std=gnu++11
 
 HEADERS += \
-    window.hpp
+    window.hpp \
+    setupgame.hpp \
+    lodepng.h \
+    loadtexture.hpp
 
 SOURCES += \
     window.cpp \
-    main.cpp
+    main.cpp \
+    setupgame.cpp \
+    lodepng.cpp \
+    loadtexture.cpp
