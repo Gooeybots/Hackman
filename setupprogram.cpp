@@ -42,10 +42,9 @@ GLuint CreateProgram(const std::vector<Shader> &shaderVec)
         std::cerr << "Couldn't create program\n";
     else
     {
-        for(std::vector<Shader>::const_iterator it = shaderVec.begin();
-            it != shaderVec.end(); ++it)
+        for(auto const &it : shaderVec)
         {
-            GLuint shader = glCreateShader(it->shaderType);
+            GLuint shader = glCreateShader(it.shaderType);
             if(shader == 0)
             {
                 glDeleteProgram(program);
@@ -54,7 +53,7 @@ GLuint CreateProgram(const std::vector<Shader> &shaderVec)
             else
             {
                 std::stringstream data;
-                ReadToStream(it->filename, data);
+                ReadToStream(it.filename, data);
                 CreateShader(data.str().c_str(), shader);
 
                 GLint success = 0;

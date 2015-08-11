@@ -11,7 +11,7 @@ ResourceManager::~ResourceManager()
 {
     for(auto const &id : mMap)
     {
-        GLuint object(id->second);
+        GLuint object(id.second);
         if(glIsVertexArray(object))
             glDeleteVertexArrays(1, &object);
         else if(glIsTexture(object))
@@ -43,11 +43,11 @@ unsigned int ResourceManager::GetProgram(const std::string &vs, const std::strin
 
 unsigned int ResourceManager::GetTexture(const std::string &filename)
 {
-    unsigned int texture(GetData(name));
+    unsigned int texture(GetData(filename));
     if(texture == 0)
     {
         texture = LoadTexture(filename.c_str());
-        AddToMap(name, texture);
+        AddToMap(filename, texture);
     }
     return texture;
 }

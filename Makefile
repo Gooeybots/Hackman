@@ -50,13 +50,15 @@ SOURCES       = window.cpp \
 		setupgame.cpp \
 		lodepng.cpp \
 		loadtexture.cpp \
-		setupprogram.cpp 
+		setupprogram.cpp \
+		resourcemanager.cpp 
 OBJECTS       = window.o \
 		main.o \
 		setupgame.o \
 		lodepng.o \
 		loadtexture.o \
-		setupprogram.o
+		setupprogram.o \
+		resourcemanager.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/shell-unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
@@ -115,7 +117,8 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		setupgame.cpp \
 		lodepng.cpp \
 		loadtexture.cpp \
-		setupprogram.cpp
+		setupprogram.cpp \
+		resourcemanager.cpp
 QMAKE_TARGET  = Hackman
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = Hackman
@@ -268,7 +271,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/Hackman1.0.0 || mkdir -p .tmp/Hackman1.0.0
-	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
+	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
 
 
 clean:compiler_clean 
@@ -324,6 +327,11 @@ loadtexture.o: loadtexture.cpp lodepng.h \
 
 setupprogram.o: setupprogram.cpp setupprogram.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o setupprogram.o setupprogram.cpp
+
+resourcemanager.o: resourcemanager.cpp resourcemanager.hpp \
+		loadtexture.hpp \
+		setupprogram.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o resourcemanager.o resourcemanager.cpp
 
 ####### Install
 
