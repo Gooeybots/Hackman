@@ -11,11 +11,15 @@ HEADERS += \
     window.hpp \
     setupgame.hpp \
     lodepng.h \
-    loadtexture.hpp
+    loadtexture.hpp \
+    setupprogram.hpp \
+    resourcemanager.hpp
 
 SOURCES += \
     window.cpp \
     main.cpp \
     setupgame.cpp \
     lodepng.cpp \
-    loadtexture.cpp
+    loadtexture.cpp \
+    setupprogram.cpp \
+    resourcemanager.cpp

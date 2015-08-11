@@ -46,9 +46,17 @@ OBJECTS_DIR   = ./
 ####### Files
 
 SOURCES       = window.cpp \
-		main.cpp 
+		main.cpp \
+		setupgame.cpp \
+		lodepng.cpp \
+		loadtexture.cpp \
+		setupprogram.cpp 
 OBJECTS       = window.o \
-		main.o
+		main.o \
+		setupgame.o \
+		lodepng.o \
+		loadtexture.o \
+		setupprogram.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/shell-unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
@@ -103,7 +111,11 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/yacc.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/lex.prf \
 		Hackman.pro window.cpp \
-		main.cpp
+		main.cpp \
+		setupgame.cpp \
+		lodepng.cpp \
+		loadtexture.cpp \
+		setupprogram.cpp
 QMAKE_TARGET  = Hackman
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = Hackman
@@ -256,7 +268,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/Hackman1.0.0 || mkdir -p .tmp/Hackman1.0.0
-	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
+	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
 
 
 clean:compiler_clean 
@@ -296,8 +308,22 @@ compiler_clean:
 window.o: window.cpp window.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o window.o window.cpp
 
-main.o: main.cpp window.hpp
+main.o: main.cpp window.hpp \
+		setupgame.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
+
+setupgame.o: setupgame.cpp setupgame.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o setupgame.o setupgame.cpp
+
+lodepng.o: lodepng.cpp lodepng.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o lodepng.o lodepng.cpp
+
+loadtexture.o: loadtexture.cpp lodepng.h \
+		loadtexture.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o loadtexture.o loadtexture.cpp
+
+setupprogram.o: setupprogram.cpp setupprogram.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o setupprogram.o setupprogram.cpp
 
 ####### Install
 
