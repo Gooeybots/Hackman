@@ -1,8 +1,8 @@
 #include <iostream>
-#include <fstream>
 #include <sstream>
 #include <vector>
 #include <GL/glew.h>
+#include "readtostream.hpp"
 #include "setupprogram.hpp"
 
 struct Shader
@@ -80,23 +80,6 @@ GLuint CreateProgram(const std::vector<Shader> &shaderVec)
     }
 
     return program;
-}
-
-bool ReadToStream(const char * filename, std::stringstream &data)
-{
-    std::ifstream file(filename, std::ios::in);
-
-    if(file.is_open())
-    {
-        data << file.rdbuf();
-        file.close();
-    }
-    else
-    {
-        std::cerr << "Couldn't open file " << filename << "\n";
-        return false;
-    }
-    return true;
 }
 
 void CreateShader(const char * data, GLuint shader)

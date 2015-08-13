@@ -26,6 +26,7 @@ public:
 private:
     void AddToMap(const std::string &name, const unsigned int &id);
     unsigned int GetData(const std::string &name);
+
     std::map<std::string, unsigned int> mMap;
 };
 

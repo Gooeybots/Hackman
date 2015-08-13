@@ -13,7 +13,13 @@ HEADERS += \
     lodepng.h \
     loadtexture.hpp \
     setupprogram.hpp \
-    resourcemanager.hpp
+    resourcemanager.hpp \
+    readtostream.hpp \
+    map.hpp \
+    visibleobject.hpp \
+    character.hpp \
+    setupobjects.hpp \
+    playgame.hpp
 
 SOURCES += \
     window.cpp \
@@ -22,4 +28,16 @@ SOURCES += \
     lodepng.cpp \
     loadtexture.cpp \
     setupprogram.cpp \
-    resourcemanager.cpp
+    resourcemanager.cpp \
+    readtostream.cpp \
+    map.cpp \
+    character.cpp \
+    visibleobject.cpp \
+    setupobjects.cpp \
+    playgame.cpp
+
+OTHER_FILES += \
+    textured.vs \
+    textured.fs \
+    map.txt \
+    maps.txt

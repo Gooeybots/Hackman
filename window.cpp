@@ -42,7 +42,7 @@ bool SetupWindow(const char * title, const int width, const int height)
 
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+                glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // maybe 0.0f 0.7f 0.0f
                 glViewport(0, 0, width, height);
 
                 return true;
@@ -55,6 +55,7 @@ bool SetupWindow(const char * title, const int width, const int height)
 // To keep viewport square
 void Resize(GLFWwindow * window, int width, int height)
 {
-    if(window && width && height)
+    glViewport(0, 0, width, height);
+    if(window)
         return;
 }

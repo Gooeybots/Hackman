@@ -1,6 +1,6 @@
 #ifndef SETUPGAME_HPP
 #define SETUPGAME_HPP
 
-int SetupGame();
+bool SetupGame();
 
 #endif // SETUPGAME_HPP

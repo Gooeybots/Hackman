@@ -51,14 +51,26 @@ SOURCES       = window.cpp \
 		lodepng.cpp \
 		loadtexture.cpp \
 		setupprogram.cpp \
-		resourcemanager.cpp 
+		resourcemanager.cpp \
+		readtostream.cpp \
+		map.cpp \
+		character.cpp \
+		visibleobject.cpp \
+		setupobjects.cpp \
+		playgame.cpp 
 OBJECTS       = window.o \
 		main.o \
 		setupgame.o \
 		lodepng.o \
 		loadtexture.o \
 		setupprogram.o \
-		resourcemanager.o
+		resourcemanager.o \
+		readtostream.o \
+		map.o \
+		character.o \
+		visibleobject.o \
+		setupobjects.o \
+		playgame.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/shell-unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
@@ -118,7 +130,13 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		lodepng.cpp \
 		loadtexture.cpp \
 		setupprogram.cpp \
-		resourcemanager.cpp
+		resourcemanager.cpp \
+		readtostream.cpp \
+		map.cpp \
+		character.cpp \
+		visibleobject.cpp \
+		setupobjects.cpp \
+		playgame.cpp
 QMAKE_TARGET  = Hackman
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = Hackman
@@ -271,7 +289,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/Hackman1.0.0 || mkdir -p .tmp/Hackman1.0.0
-	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
+	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp readtostream.hpp map.hpp visibleobject.hpp character.hpp setupobjects.hpp playgame.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp readtostream.cpp map.cpp character.cpp visibleobject.cpp setupobjects.cpp playgame.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
 
 
 clean:compiler_clean 
@@ -315,7 +333,12 @@ main.o: main.cpp window.hpp \
 		setupgame.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
-setupgame.o: setupgame.cpp setupgame.hpp
+setupgame.o: setupgame.cpp setupgame.hpp \
+		resourcemanager.hpp \
+		readtostream.hpp \
+		map.hpp \
+		visibleobject.hpp \
+		playgame.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o setupgame.o setupgame.cpp
 
 lodepng.o: lodepng.cpp lodepng.h
@@ -325,13 +348,43 @@ loadtexture.o: loadtexture.cpp lodepng.h \
 		loadtexture.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o loadtexture.o loadtexture.cpp
 
-setupprogram.o: setupprogram.cpp setupprogram.hpp
+setupprogram.o: setupprogram.cpp readtostream.hpp \
+		setupprogram.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o setupprogram.o setupprogram.cpp
 
 resourcemanager.o: resourcemanager.cpp resourcemanager.hpp \
 		loadtexture.hpp \
 		setupprogram.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o resourcemanager.o resourcemanager.cpp
+
+readtostream.o: readtostream.cpp readtostream.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o readtostream.o readtostream.cpp
+
+map.o: map.cpp map.hpp \
+		readtostream.hpp \
+		visibleobject.hpp \
+		character.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o map.o map.cpp
+
+character.o: character.cpp character.hpp \
+		visibleobject.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o character.o character.cpp
+
+visibleobject.o: visibleobject.cpp visibleobject.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o visibleobject.o visibleobject.cpp
+
+setupobjects.o: setupobjects.cpp setupobjects.hpp \
+		resourcemanager.hpp \
+		map.hpp \
+		visibleobject.hpp \
+		character.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o setupobjects.o setupobjects.cpp
+
+playgame.o: playgame.cpp setupobjects.hpp \
+		playgame.hpp \
+		map.hpp \
+		resourcemanager.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o playgame.o playgame.cpp
 
 ####### Install
 

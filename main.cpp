@@ -5,7 +5,7 @@ int main()
 {
     if(SetupWindow("Hackman", 1024, 768))
     {
-        return SetupGame();
+        SetupGame();
     }
     return 0;
 }
