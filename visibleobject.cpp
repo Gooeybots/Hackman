@@ -5,12 +5,24 @@
 #include "visibleobject.hpp"
 
 VisibleObject::VisibleObject(const float xOffset, const float yOffset,
-                             const unsigned int vao, const unsigned int texture,
-                             const unsigned int program):
-    mXOffset(xOffset), mYOffset(yOffset), mVao(vao), mTexture(texture),
+                             const unsigned int vao, const unsigned int nextVao,
+                             const unsigned int texture, const unsigned int program):
+    mXOffset(xOffset), mYOffset(yOffset), mVao(vao), mNextVao(nextVao), mTexture(texture),
     mProgram(program){}
 
 VisibleObject::~VisibleObject(){}
+
+void VisibleObject::SwitchVaos()
+{
+    GLuint temp(mVao);
+    mVao = mNextVao;
+    mNextVao = temp;
+}
+
+bool VisibleObject::Move(const Direction dir, const float dt, const Map &map)
+{
+    return false;
+}
 
 void VisibleObject::Draw(const glm::mat4 &view)
 {
@@ -33,4 +45,14 @@ void VisibleObject::Draw(const glm::mat4 &view)
 unsigned int VisibleObject::GetPlayer()
 {
     return 0;
+}
+
+float VisibleObject::GetX()
+{
+    return mXOffset;
+}
+
+float VisibleObject::GetY()
+{
+    return mYOffset;
 }

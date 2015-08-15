@@ -38,6 +38,25 @@ bool Map::LoadNextMap()
     return false;
 }
 
+bool Map::CanMove(const Direction dir, const glm::ivec2 &where) const
+{
+    if(CanTravelDirection(where.x, where.y, dir))
+    {
+        glm::ivec2 nextSquare(where.x, where.y);
+        if(dir == Direction::Left)
+            nextSquare.x -= 1;
+        else if(dir == Direction::Right)
+            nextSquare.x += 1;
+        else if(dir == Direction::Up)
+            nextSquare.y += 1;
+        else if(dir == Direction::Down)
+            nextSquare.y -= 1;
+        Object obj(GetWhichObject(nextSquare));
+        return CanPassThroughObject(obj);
+    }
+    return false;
+}
+
 bool Map::RetriveMapFromFile()
 {
     std::stringstream data;
@@ -70,10 +89,38 @@ void Map::SetObject(const glm::ivec2 &whichSquare, const unsigned int player)
         mMap[whichSquare.x][whichSquare.y] = player;
 }
 
+bool Map::CanTravelDirection(const unsigned int x, const unsigned int y,
+                             const Direction dir) const
+{
+    if((dir == Direction::Left && x == 0) ||
+            (dir == Direction::Right && x == 27) ||
+            (dir == Direction::Up && y == 29) ||
+            (dir == Direction::Down && y == 0))
+        return false;
+    return true;
+}
+
+bool Map::CanPassThroughObject(const Object obj) const
+{
+    bool retValue(false);
+    /*if(!(obj == Object::block1 || obj == Object::block2 ||
+            obj == Object::wolfEntrance))
+        retValue = true;*/
+    switch(obj)
+    {
+    case Object::block1: case Object::block2: case Object::wolfEntrance:
+        retValue = false;
+        break;
+    default:
+        retValue = true;
+    }
+    return retValue;
+}
+
 Object Map::GetWhichObject(const glm::ivec2 &whichSquare) const
 {
     Object obj;
-    unsigned int item = mMap[whichSquare.x][whichSquare.y];
+    unsigned int item(mMap[whichSquare.x][whichSquare.y]);
     switch(item)
     {
     case 1:

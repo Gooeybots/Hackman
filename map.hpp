@@ -4,8 +4,7 @@
 #include <array>
 #include <vector>
 #include <glm/vec2.hpp>
-
-class VisibleObject;
+#include "visibleobject.hpp"
 
 enum Object
 {
@@ -32,12 +31,16 @@ public:
 
 // Returns false if last map was the last level
     bool LoadNextMap();
+    bool CanMove(const Direction dir, const glm::ivec2 &where) const;
 // sets object
     void SetObject(const glm::ivec2 &whichSquare, const unsigned int player);
     Object GetWhichObject(const glm::ivec2 &whichSquare) const;
 private:
 // Returns false if file couldn't be read
     bool RetriveMapFromFile();
+    bool CanTravelDirection(const unsigned int x, const unsigned int y,
+                            const Direction dir) const;
+    bool CanPassThroughObject(const Object obj) const;
 
     unsigned int mMap[28][30];
     std::vector<const char *> mMapFiles;

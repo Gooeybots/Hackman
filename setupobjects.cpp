@@ -40,27 +40,27 @@ std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const unsigne
     switch(obj)
     {
     case Object::player:
-        return ptr(new Character(xOffset, yOffset, 1.0f, 1, vaoTopLeft,
+        return ptr(new Character(xOffset, yOffset, 2.0f, 1, vaoTopLeft, vaoBottomLeft,
                                  geoffTexture, program));
         break;
     case Object::enemy1: case Object::enemy2: case Object::enemy3: case Object::enemy4:
-        return ptr(new Character(xOffset, yOffset, 1.0f, 2, vaoTopLeft,
+        return ptr(new Character(xOffset, yOffset, 1.0f, 2, vaoTopLeft, vaoBottomLeft,
                                  geoffTexture, program));
         break;
     case Object::tree:
-        return ptr(new VisibleObject(xOffset, yOffset, vaoTopLeft,
+        return ptr(new VisibleObject(xOffset, yOffset, vaoTopLeft, vaoBottomLeft,
                                      sceneryTexture, program));
         break;
     case Object::choppedTree:
-        return ptr(new VisibleObject(xOffset, yOffset, vaoBottomLeft,
+        return ptr(new VisibleObject(xOffset, yOffset, vaoBottomLeft, vaoBottomLeft,
                                      sceneryTexture, program));
         break;
     case Object::block1:
-        return ptr(new VisibleObject(xOffset, yOffset, vaoTopRight,
+        return ptr(new VisibleObject(xOffset, yOffset, vaoTopRight, vaoTopRight,
                                      sceneryTexture, program));
         break;
     case Object::block2: case Object::wolfEntrance:
-        return ptr(new VisibleObject(xOffset, yOffset, vaoBottomRight,
+        return ptr(new VisibleObject(xOffset, yOffset, vaoBottomRight, vaoBottomRight,
                                      sceneryTexture, program));
         break;
     default:
