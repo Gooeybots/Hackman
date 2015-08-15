@@ -1,4 +1,5 @@
 #include <GL/glew.h>
+#include <GLFW/glfw3.h>
 #include "map.hpp"
 #include "character.hpp"
 
@@ -7,13 +8,21 @@ Character::Character(const float x, const float y, const float speed,
                      const unsigned int nextVao, const unsigned int texture,
                      const unsigned int program, Direction dir):
     VisibleObject(x, y, vao, nextVao, texture, program),
-    prevDir(dir), mSpeed(speed), mPlayer(player)
+    prevDir(dir), currTime(0.0), prevTime(0.0f), mSpeed(speed), mPlayer(player)
 {}
 
 Character::~Character(){}
 
 bool Character::Move(const Direction dir, const float dt, const Map &map)
 {
+    // Update animation
+    currTime = glfwGetTime();
+    if(currTime - prevTime >= 0.2)
+    {
+        SwitchVaos();
+        prevTime = currTime;
+    }
+
     bool moved(false);
     glm::vec2 centerOfChar(mXOffset + 0.5f, mYOffset + 0.5f);
 
@@ -45,6 +54,8 @@ bool Character::Move(const Direction dir, const float dt, const Map &map)
         {
             if(dir != prevDir)
                 moved = Move(prevDir, dt, map);
+            else // if not moving stop animation
+                prevTime = currTime;
         }
     }
     else
@@ -54,6 +65,10 @@ bool Character::Move(const Direction dir, const float dt, const Map &map)
                                         (int)centerOfChar.y)))
         {
             MoveToCenter(dir);
+            if(dir != prevDir)
+                moved = Move(prevDir, dt, map);
+            else // if not moving stop animation
+                prevTime = currTime;
         }
     }
     return moved;

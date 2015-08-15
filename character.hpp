@@ -24,7 +24,10 @@ protected:
     bool CanMoveWithoutChangingSquare(const glm::vec2 &where,
                                       const float distanceToMove, const Direction dir);
     void MoveToCenter(const Direction dir);
+
+
     Direction prevDir;
+    float currTime, prevTime;
     float mSpeed;
     unsigned int mPlayer;
 };
