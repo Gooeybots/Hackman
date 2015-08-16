@@ -9,7 +9,6 @@ GLuint LoadTexture(const char * filename)
     std::vector<unsigned char> image;
     GLuint width, height, texture(0);
     unsigned int error(lodepng::decode(image, width, height, filename));
-
     if(error)
     {
         std::cout << "Couldn't load " << filename << "\n";

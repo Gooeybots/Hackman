@@ -361,13 +361,14 @@ readtostream.o: readtostream.cpp readtostream.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o readtostream.o readtostream.cpp
 
 map.o: map.cpp map.hpp \
-		readtostream.hpp \
 		visibleobject.hpp \
+		readtostream.hpp \
 		character.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o map.o map.cpp
 
-character.o: character.cpp character.hpp \
-		visibleobject.hpp
+character.o: character.cpp map.hpp \
+		visibleobject.hpp \
+		character.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o character.o character.cpp
 
 visibleobject.o: visibleobject.cpp visibleobject.hpp
@@ -383,7 +384,9 @@ setupobjects.o: setupobjects.cpp setupobjects.hpp \
 playgame.o: playgame.cpp setupobjects.hpp \
 		playgame.hpp \
 		map.hpp \
-		resourcemanager.hpp
+		visibleobject.hpp \
+		resourcemanager.hpp \
+		character.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o playgame.o playgame.cpp
 
 ####### Install

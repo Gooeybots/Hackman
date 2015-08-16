@@ -5,7 +5,7 @@
 #include "visibleobject.hpp"
 #include "character.hpp"
 
-Map::Map(const char * mapsFilename)
+Map::Map(const char * mapsFilename):mTrees(0)
 {
     for(unsigned int y(0); y < 30; ++y)
     {
@@ -26,6 +26,13 @@ Map::Map(const char * mapsFilename)
 
         RetriveMapFromFile();
     }
+}
+
+bool Map::HasFinished()
+{
+    if(mTrees == 0)
+        return true;
+    return false;
 }
 
 bool Map::LoadNextMap()
@@ -70,6 +77,8 @@ bool Map::RetriveMapFromFile()
                 unsigned int item;
                 data >> item;
                 mMap[x][y] = item;
+                if(item == 32)
+                    mTrees += 1;
             }
         }
         return true;
@@ -84,6 +93,11 @@ void Map::SetObject(const glm::ivec2 &whichSquare, const unsigned int player)
             obj == Object::enemy3 || obj == Object::enemy4)
     {
         mMap[whichSquare.x][whichSquare.y] += player;
+    }
+    else if(obj == Object::tree)
+    {
+        mMap[whichSquare.x][whichSquare.y] = player;
+        mTrees -= 1;
     }
     else
         mMap[whichSquare.x][whichSquare.y] = player;
@@ -103,9 +117,6 @@ bool Map::CanTravelDirection(const unsigned int x, const unsigned int y,
 bool Map::CanPassThroughObject(const Object obj) const
 {
     bool retValue(false);
-    /*if(!(obj == Object::block1 || obj == Object::block2 ||
-            obj == Object::wolfEntrance))
-        retValue = true;*/
     switch(obj)
     {
     case Object::block1: case Object::block2: case Object::wolfEntrance:

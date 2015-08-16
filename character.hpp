@@ -15,21 +15,26 @@ public:
               Direction = Direction::Right);
     ~Character();
 
-    void Draw(const glm::mat4 &View);
+    void Draw(const glm::mat4 &view);
 /* moves character speed * dt and returns true if character moved square */
     bool Move(const Direction dir, const float dt, const Map &map);
     unsigned int GetPlayer(); // will return 0 if not a player
+    glm::mat4 GetModel();
 
 protected:
     bool CanMoveWithoutChangingSquare(const glm::vec2 &where,
                                       const float distanceToMove, const Direction dir);
-    void MoveToCenter(const Direction dir);
+    void MoveToCenter(const Direction dir, const float distanceToMove);
+    void MoveToCenterVertical(const Direction dir, const float distanceToMove);
+    void MoveToCenterHorizontal(const Direction dir, const float distanceToMove);
 
+    void UpdateModel(const Direction dir);
 
     Direction prevDir;
     float currTime, prevTime;
     float mSpeed;
     unsigned int mPlayer;
+    glm::mat4 mModel;
 };
 
 #endif // CHARACTER_HPP

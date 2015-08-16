@@ -30,6 +30,7 @@ public:
     Map(const char * mapsFilename = "maps.txt");
 
 // Returns false if last map was the last level
+    bool HasFinished();
     bool LoadNextMap();
     bool CanMove(const Direction dir, const glm::ivec2 &where) const;
 // sets object
@@ -42,6 +43,7 @@ private:
                             const Direction dir) const;
     bool CanPassThroughObject(const Object obj) const;
 
+    unsigned int mTrees;
     unsigned int mMap[28][30];
     std::vector<const char *> mMapFiles;
     std::vector<const char *>::iterator mWhichMap;

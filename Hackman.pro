@@ -40,4 +40,5 @@ OTHER_FILES += \
     textured.vs \
     textured.fs \
     map.txt \
-    maps.txt
+    maps.txt \
+    character.vs

@@ -23,6 +23,7 @@ bool SetupGame()
     resourceManager.CreateTexture("geoff.png");
     resourceManager.CreateTexture("scenery.png");
     resourceManager.CreateProgram("textured.vs", "textured.fs");
+    resourceManager.CreateProgram("character.vs", "textured.fs");
 
     {
         GLuint buffer(CreateBuffer());
@@ -47,10 +48,10 @@ GLuint CreateBuffer()
 {
     std::vector<float> positions;
 // positions for square from a fan
-    positions.push_back(1.0f); positions.push_back(0.0f);
-    positions.push_back(1.0f); positions.push_back(1.0f);
-    positions.push_back(0.0f); positions.push_back(1.0f);
-    positions.push_back(0.0f); positions.push_back(0.0f);
+    positions.push_back( 0.5f); positions.push_back(-0.5f);
+    positions.push_back( 0.5f); positions.push_back( 0.5f);
+    positions.push_back(-0.5f); positions.push_back( 0.5f);
+    positions.push_back(-0.5f); positions.push_back(-0.5f);
 // tex coords full
     positions.push_back(1.0f); positions.push_back(1.0f);
     positions.push_back(1.0f); positions.push_back(0.0f);

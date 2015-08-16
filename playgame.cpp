@@ -18,13 +18,15 @@ struct Movement
 };
 
 void GetInput(Movement &movement);
+void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
+                  std::vector<std::shared_ptr<VisibleObject>> &objVec);
 
 bool PlayGame(Map map, ResourceManager resourceManager)
 {
     glm::mat4 view(glm::ortho(0.0f, 40.0f, 0.0f, 30.0f, 1.0f, -1.0f));
     std::vector<std::shared_ptr<VisibleObject>> objectVec;
-    Movement movement;
-    movement.player = 1;
+    Movement movement;   // Will need to put into a vector when I do AI
+    movement.player = 1; // Will have to change this when i incorporate AI
 
     bool playing(true);
     while(playing && !glfwWindowShouldClose(glfwGetCurrentContext()))
@@ -40,12 +42,28 @@ bool PlayGame(Map map, ResourceManager resourceManager)
             for(auto & obj : objectVec)
             {
                 if(movement.player == obj->GetPlayer())
+                {
                     if(obj->Move(movement.dir, currTime - prevTime, map))
-                        map.SetObject(
-                                    glm::ivec2((int)(obj->GetX() + 0.5f),
-                                               (int)(obj->GetY() + 0.5f)),
-                                    obj->GetPlayer());
+                    {
+                        glm::ivec2 where((int)(obj->GetX()),
+                                         (int)(obj->GetY()));
+                        if(map.GetWhichObject(where) == Object::tree)
+                        {
+                            UpdateObject(where, map, obj->GetPlayer(), objectVec);
+                            if(map.HasFinished())
+                            {
+                                playing = false;
+                                nextMap = true;
+                            }
+                        }
+                    }
+                }
                 obj->Draw(view);
+            }
+            if(map.HasFinished())
+            {
+                nextMap = true;
+                playing = false;
             }
 
             glfwSwapBuffers(glfwGetCurrentContext());
@@ -69,4 +87,21 @@ void GetInput(Movement &movement)
         movement.dir = Direction::Up;
     else if(glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_DOWN) == GLFW_PRESS)
         movement.dir = Direction::Down;
+    else
+        movement.dir = Direction::None;
+}
+
+void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
+                  std::vector<std::shared_ptr<VisibleObject> > &objVec)
+{
+    for(auto & obj : objVec)
+    {
+        if((int)obj->GetX() == where.x &&
+                (int)obj->GetY() == where.y && player != obj->GetPlayer())
+        {
+            obj->SwitchVaos();
+            map.SetObject(where, 0);
+            break;
+        }
+    }
 }
