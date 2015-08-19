@@ -2,17 +2,9 @@
 #define VISIBLEOBJECT_HPP
 
 #include <glm/mat4x4.hpp>
+#include "directionenum.hpp"
 
 class Map;
-
-enum Direction
-{
-    None,
-    Up,
-    Down,
-    Left,
-    Right
-};
 
 class VisibleObject
 {

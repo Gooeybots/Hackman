@@ -36,6 +36,8 @@ public:
 // sets object
     void SetObject(const glm::ivec2 &whichSquare, const unsigned int player);
     Object GetWhichObject(const glm::ivec2 &whichSquare) const;
+    glm::ivec2 FindObject(const Object obj);
+    std::array<unsigned int, 840> GetMap();
 private:
 // Returns false if file couldn't be read
     bool RetriveMapFromFile();
@@ -44,7 +46,7 @@ private:
     bool CanPassThroughObject(const Object obj) const;
 
     unsigned int mTrees;
-    unsigned int mMap[28][30];
+    std::array<unsigned int, 840> mMap;
     std::vector<const char *> mMapFiles;
     std::vector<const char *>::iterator mWhichMap;
 };

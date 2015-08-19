@@ -4,12 +4,14 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include "directionenum.hpp"
 #include "setupobjects.hpp"
 #include "playgame.hpp"
 #include "map.hpp"
 #include "resourcemanager.hpp"
 #include "visibleobject.hpp"
 #include "character.hpp"
+#include "ai.hpp"
 
 struct Movement
 {
@@ -20,7 +22,8 @@ struct Movement
 void GetInput(Movement &movement);
 void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
                   std::vector<std::shared_ptr<VisibleObject>> &objVec);
-
+std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,
+                                         std::vector<std::shared_ptr<VisibleObject>> &objVec);
 bool PlayGame(Map map, ResourceManager resourceManager)
 {
     glm::mat4 view(glm::ortho(0.0f, 40.0f, 0.0f, 30.0f, 1.0f, -1.0f));
@@ -33,6 +36,8 @@ bool PlayGame(Map map, ResourceManager resourceManager)
     {
         double currTime(glfwGetTime()), prevTime(currTime);
         GetVecFullOfObjects(objectVec, map, resourceManager);
+        AI ai(GetPlayer(2, objectVec), GetPlayer(1, objectVec));
+
         for(bool nextMap(false); !nextMap &&
             !glfwWindowShouldClose(glfwGetCurrentContext());)
         {
@@ -41,7 +46,9 @@ bool PlayGame(Map map, ResourceManager resourceManager)
 
             for(auto & obj : objectVec)
             {
-                if(movement.player == obj->GetPlayer())
+                if(ai.GetPlayer() == obj->GetPlayer())
+                    obj->Move(ai.GetMove(map), currTime - prevTime, map);
+                else if(movement.player == obj->GetPlayer())
                 {
                     if(obj->Move(movement.dir, currTime - prevTime, map))
                     {
@@ -104,4 +111,19 @@ void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
             break;
         }
     }
+}
+
+std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,
+                                         std::vector<std::shared_ptr<VisibleObject> > &objVec)
+{
+    std::shared_ptr<VisibleObject> playerToRet(nullptr);
+    for(auto it(objVec.begin()); it != objVec.end(); ++it)
+    {
+        if((*it)->GetPlayer() == player)
+        {
+            playerToRet = *it;
+            break;
+        }
+    }
+    return playerToRet;
 }

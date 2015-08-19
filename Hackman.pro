@@ -19,7 +19,9 @@ HEADERS += \
     visibleobject.hpp \
     character.hpp \
     setupobjects.hpp \
-    playgame.hpp
+    playgame.hpp \
+    ai.hpp \
+    directionenum.hpp
 
 SOURCES += \
     window.cpp \
@@ -34,7 +36,8 @@ SOURCES += \
     character.cpp \
     visibleobject.cpp \
     setupobjects.cpp \
-    playgame.cpp
+    playgame.cpp \
+    ai.cpp
 
 OTHER_FILES += \
     textured.vs \

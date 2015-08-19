@@ -7,13 +7,7 @@
 
 Map::Map(const char * mapsFilename):mTrees(0)
 {
-    for(unsigned int y(0); y < 30; ++y)
-    {
-        for(unsigned int x(0); x < 28; ++x)
-        {
-            mMap[x][y] = 0;
-        }
-    }
+    mMap.fill(0);
 
     std::stringstream data;
     if(ReadToStream(mapsFilename, data))
@@ -70,16 +64,13 @@ bool Map::RetriveMapFromFile()
     if(ReadToStream(*mWhichMap, data))
     {
         mWhichMap++;
-        for(unsigned int y(0); y < 30; ++y)
+        for(auto & square : mMap)
         {
-            for(unsigned int x(0); x < 28; ++x)
-            {
-                unsigned int item;
-                data >> item;
-                mMap[x][y] = item;
-                if(item == 32)
-                    mTrees += 1;
-            }
+            unsigned int item;
+            data >> item;
+            square = item;
+            if(item == 32)
+                mTrees += 1;
         }
         return true;
     }
@@ -88,19 +79,19 @@ bool Map::RetriveMapFromFile()
 
 void Map::SetObject(const glm::ivec2 &whichSquare, const unsigned int player)
 {
+    unsigned int where(whichSquare.x + (whichSquare.y * 28));
     Object obj(GetWhichObject(whichSquare));
+
     if(obj == Object::player || obj == Object::enemy1 || obj == Object::enemy2 ||
             obj == Object::enemy3 || obj == Object::enemy4)
-    {
-        mMap[whichSquare.x][whichSquare.y] += player;
-    }
+        mMap[where] += player;
     else if(obj == Object::tree)
     {
-        mMap[whichSquare.x][whichSquare.y] = player;
+        mMap[where] = player;
         mTrees -= 1;
     }
     else
-        mMap[whichSquare.x][whichSquare.y] = player;
+        mMap[where] = player;
 }
 
 bool Map::CanTravelDirection(const unsigned int x, const unsigned int y,
@@ -128,10 +119,16 @@ bool Map::CanPassThroughObject(const Object obj) const
     return retValue;
 }
 
+std::array<unsigned int, 840> Map::GetMap()
+{
+    return mMap;
+}
+
 Object Map::GetWhichObject(const glm::ivec2 &whichSquare) const
 {
     Object obj;
-    unsigned int item(mMap[whichSquare.x][whichSquare.y]);
+    unsigned int where((whichSquare.y * 28) + whichSquare.x);
+    unsigned int item(mMap[where]);
     switch(item)
     {
     case 1:
