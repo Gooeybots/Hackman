@@ -44,8 +44,20 @@ std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const float x
         return ptr(new Character(xOffset, yOffset, 4.0f, 1, vaoTopLeft, vaoBottomLeft,
                                  geoffTexture, characterProgram));
         break;
-    case Object::enemy1: case Object::enemy2: case Object::enemy3: case Object::enemy4:
+    case Object::enemy1:
         return ptr(new Character(xOffset, yOffset, 4.0f, 2, vaoTopLeft, vaoBottomLeft,
+                                 geoffTexture, characterProgram));
+        break;
+    case Object::enemy2:
+        return ptr(new Character(xOffset, yOffset, 4.0f, 4, vaoTopLeft, vaoBottomLeft,
+                                 geoffTexture, characterProgram));
+        break;
+    case Object::enemy3:
+        return ptr(new Character(xOffset, yOffset, 4.0f, 8, vaoTopLeft, vaoBottomLeft,
+                                 geoffTexture, characterProgram));
+        break;
+    case Object::enemy4:
+        return ptr(new Character(xOffset, yOffset, 4.0f, 16, vaoTopLeft, vaoBottomLeft,
                                  geoffTexture, characterProgram));
         break;
     case Object::tree:

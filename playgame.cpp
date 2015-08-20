@@ -19,17 +19,23 @@ struct Movement
     Direction dir;
 };
 
-void GetInput(Movement &movement);
+void GetInput(std::vector<Movement> &movement, std::vector<AI> &aiVec, Map &map);
 void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
                   std::vector<std::shared_ptr<VisibleObject>> &objVec);
+bool UpdateTreesAndCheckIfWon(std::shared_ptr<VisibleObject> &player,
+                              std::vector<std::shared_ptr<VisibleObject>> &objVec, Map &map);
+bool UpdatePlayerMovementAndCheckWin(std::shared_ptr<VisibleObject> &player, std::vector<Movement> &moveVec,
+                                     std::vector<std::shared_ptr<VisibleObject>> &objVec, Map &map,
+                                     const float deltaTime);
 std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,
                                          std::vector<std::shared_ptr<VisibleObject>> &objVec);
+
 bool PlayGame(Map map, ResourceManager resourceManager)
 {
     glm::mat4 view(glm::ortho(0.0f, 40.0f, 0.0f, 30.0f, 1.0f, -1.0f));
     std::vector<std::shared_ptr<VisibleObject>> objectVec;
-    Movement movement;   // Will need to put into a vector when I do AI
-    movement.player = 1; // Will have to change this when i incorporate AI
+    std::vector<Movement> movementVec;
+    std::vector<AI> aiVec;
 
     bool playing(true);
     while(playing && !glfwWindowShouldClose(glfwGetCurrentContext()))
@@ -37,40 +43,23 @@ bool PlayGame(Map map, ResourceManager resourceManager)
         double currTime(glfwGetTime()), prevTime(currTime);
         GetVecFullOfObjects(objectVec, map, resourceManager);
         AI ai(GetPlayer(2, objectVec), GetPlayer(1, objectVec));
+        aiVec.push_back(ai);
 
         for(bool nextMap(false); !nextMap &&
             !glfwWindowShouldClose(glfwGetCurrentContext());)
         {
             glClear(GL_COLOR_BUFFER_BIT);
-            GetInput(movement);
+            GetInput(movementVec, aiVec, map);
 
             for(auto & obj : objectVec)
             {
-                if(ai.GetPlayer() == obj->GetPlayer())
-                    obj->Move(ai.GetMove(map), currTime - prevTime, map);
-                else if(movement.player == obj->GetPlayer())
-                {
-                    if(obj->Move(movement.dir, currTime - prevTime, map))
+                if(obj->GetPlayer() > 0)
+                    if(UpdatePlayerMovementAndCheckWin(obj, movementVec, objectVec, map, currTime - prevTime))
                     {
-                        glm::ivec2 where((int)(obj->GetX()),
-                                         (int)(obj->GetY()));
-                        if(map.GetWhichObject(where) == Object::tree)
-                        {
-                            UpdateObject(where, map, obj->GetPlayer(), objectVec);
-                            if(map.HasFinished())
-                            {
-                                playing = false;
-                                nextMap = true;
-                            }
-                        }
+                        playing = false;
+                        nextMap = true;
                     }
-                }
                 obj->Draw(view);
-            }
-            if(map.HasFinished())
-            {
-                nextMap = true;
-                playing = false;
             }
 
             glfwSwapBuffers(glfwGetCurrentContext());
@@ -84,18 +73,29 @@ bool PlayGame(Map map, ResourceManager resourceManager)
     return false;
 }
 
-void GetInput(Movement &movement)
+void GetInput(std::vector<Movement> &movementVec, std::vector<AI> &aiVec, Map &map)
 {
+    Movement playerMovement;
+    playerMovement.player = 1;
     if(glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT) == GLFW_PRESS)
-        movement.dir = Direction::Left;
+        playerMovement.dir = Direction::Left;
     else if(glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_RIGHT) == GLFW_PRESS)
-        movement.dir = Direction::Right;
+        playerMovement.dir = Direction::Right;
     else if(glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_UP) == GLFW_PRESS)
-        movement.dir = Direction::Up;
+        playerMovement.dir = Direction::Up;
     else if(glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_DOWN) == GLFW_PRESS)
-        movement.dir = Direction::Down;
+        playerMovement.dir = Direction::Down;
     else
-        movement.dir = Direction::None;
+        playerMovement.dir = Direction::None;
+    movementVec.push_back(playerMovement);
+
+    for(auto & which : aiVec)
+    {
+        Movement aiMovement;
+        aiMovement.player = which.GetPlayer();
+        aiMovement.dir = which.GetMove(map);
+        movementVec.push_back(aiMovement);
+    }
 }
 
 void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
@@ -111,6 +111,40 @@ void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
             break;
         }
     }
+}
+
+bool UpdateTreesAndCheckIfWon(std::shared_ptr<VisibleObject> &player,
+                              std::vector<std::shared_ptr<VisibleObject> > &objectVec, Map &map)
+{
+    bool finished(false);
+    glm::ivec2 where((int)(player->GetX()),
+                     (int)(player->GetY()));
+    if(map.GetWhichObject(where) == Object::tree)
+    {
+        UpdateObject(where, map, player->GetPlayer(), objectVec);
+        if(map.HasFinished())
+            finished = true;
+    }
+    return finished;
+}
+
+bool UpdatePlayerMovementAndCheckWin(std::shared_ptr<VisibleObject> &character, std::vector<Movement> &moveVec,
+                                     std::vector<std::shared_ptr<VisibleObject> > &objVec, Map &map,
+                                     const float deltaTime)
+{
+    bool complete(false);
+    for(auto it(moveVec.begin()); it != moveVec.end(); ++it)
+    {
+        if(it->player == character->GetPlayer())
+        {
+            character->Move(it->dir, deltaTime, map);
+            it = moveVec.erase(it);
+            if(character->GetPlayer() == 1)
+                complete = UpdateTreesAndCheckIfWon(character, objVec, map);
+            break;
+        }
+    }
+    return complete;
 }
 
 std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,

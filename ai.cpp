@@ -18,7 +18,6 @@ Direction AI::GetMove(Map &map)
     std::deque<std::shared_ptr<Positions>> openList;
 
     openList.push_back(location);
-
     return FindShortestPath(target, location, closedList, openList, map);
 }
 
@@ -32,22 +31,26 @@ Direction AI::FindShortestPath(std::shared_ptr<Positions> &target,
     do
     {
         if(!openList.empty())
-            current = *(openList.begin());
+            current = openList.front();
 
         AddToClosedList(closedList, current);
         RemoveFromOpenList(openList, current);
+
         if(current->x == target->x && current->y == target->y)
         {
-            do
+            while(current->parent != nullptr)
             {
-                path = path->parent;
-            }while(path->parent != nullptr);
+                path = current;
+                current = current->parent;
+            }
+
             break;
         }
         AddAdjacentSquares(openList, closedList, current, target, map);
         SortOpenListInOrderOfScore(openList);
     }while((!openList.empty()));
-    if(path = nullptr)
+
+    if(!path)
         return Direction::None;
     else
         return GetDirection(location, path);
@@ -124,7 +127,7 @@ void AI::RemoveFromOpenList(std::deque<std::shared_ptr<Positions> > &openList,
 {
     for(auto where(openList.begin()); where != openList.end(); ++where)
     {
-        if((*where)->x == current->x && (*where)->y == current->y)
+        if((*where) == current)
         {
             openList.erase(where);
             break;
@@ -141,15 +144,13 @@ void AI::SortOpenListInOrderOfScore(
 bool SortPositions(std::shared_ptr<AI::Positions> &a,
                    std::shared_ptr<AI::Positions> &b)
 {
-    return (a->moves + a->distance < b->moves + b->distance);
+    return ((a->moves + a->distance) < (b->moves + b->distance));
 }
 
 bool AI::CanMove(const int x, const int y, const Object nextSquare)
 {
-    if((x < 0 && nextSquare != Object::passThrough) ||
-            (x > 27 && nextSquare != Object::passThrough) ||
-            (y > 29 && nextSquare != Object::passThrough) ||
-            (y < 0 && nextSquare != Object::passThrough) ||
+    if(((x < 0 || x > 27 || y > 29 || y < 0)
+        && nextSquare != Object::passThrough) ||
             nextSquare == Object::block1 || nextSquare == Object::block2)
         return false;
     return true;
@@ -205,11 +206,11 @@ std::shared_ptr<AI::Positions> AI::CheckOpenListForSquare(const unsigned int x, 
                                                       const std::deque<std::shared_ptr<Positions> > &openList)
 {
     std::shared_ptr<Positions> found(nullptr);
-    for(auto & square : openList)
+    for(auto it(openList.begin()); it != openList.end(); ++it)
     {
-        if(square->x == x && square->y == y)
+        if((*it)->x == x && (*it)->y == y)
         {
-            found = square;
+            found = *it;
             break;
         }
     }
