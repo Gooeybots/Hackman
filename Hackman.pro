@@ -21,7 +21,8 @@ HEADERS += \
     setupobjects.hpp \
     playgame.hpp \
     ai.hpp \
-    directionenum.hpp
+    directionenum.hpp \
+    collisiondetection.hpp
 
 SOURCES += \
     window.cpp \
@@ -37,7 +38,8 @@ SOURCES += \
     visibleobject.cpp \
     setupobjects.cpp \
     playgame.cpp \
-    ai.cpp
+    ai.cpp \
+    collisiondetection.cpp
 
 OTHER_FILES += \
     textured.vs \

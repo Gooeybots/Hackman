@@ -58,7 +58,8 @@ SOURCES       = window.cpp \
 		visibleobject.cpp \
 		setupobjects.cpp \
 		playgame.cpp \
-		ai.cpp 
+		ai.cpp \
+		collisiondetection.cpp 
 OBJECTS       = window.o \
 		main.o \
 		setupgame.o \
@@ -72,7 +73,8 @@ OBJECTS       = window.o \
 		visibleobject.o \
 		setupobjects.o \
 		playgame.o \
-		ai.o
+		ai.o \
+		collisiondetection.o
 DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/shell-unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
@@ -139,7 +141,8 @@ DIST          = /usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		visibleobject.cpp \
 		setupobjects.cpp \
 		playgame.cpp \
-		ai.cpp
+		ai.cpp \
+		collisiondetection.cpp
 QMAKE_TARGET  = Hackman
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = Hackman
@@ -292,7 +295,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/Hackman1.0.0 || mkdir -p .tmp/Hackman1.0.0
-	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp readtostream.hpp map.hpp visibleobject.hpp character.hpp setupobjects.hpp playgame.hpp ai.hpp directionenum.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp readtostream.cpp map.cpp character.cpp visibleobject.cpp setupobjects.cpp playgame.cpp ai.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
+	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp readtostream.hpp map.hpp visibleobject.hpp character.hpp setupobjects.hpp playgame.hpp ai.hpp directionenum.hpp collisiondetection.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp readtostream.cpp map.cpp character.cpp visibleobject.cpp setupobjects.cpp playgame.cpp ai.cpp collisiondetection.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
 
 
 clean:compiler_clean 
@@ -395,15 +398,19 @@ playgame.o: playgame.cpp directionenum.hpp \
 		map.hpp \
 		visibleobject.hpp \
 		resourcemanager.hpp \
-		character.hpp
+		character.hpp \
+		ai.hpp \
+		collisiondetection.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o playgame.o playgame.cpp
 
-ai.o: ai.cpp character.hpp \
-		visibleobject.hpp \
+ai.o: ai.cpp visibleobject.hpp \
 		directionenum.hpp \
 		map.hpp \
 		ai.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o ai.o ai.cpp
+
+collisiondetection.o: collisiondetection.cpp collisiondetection.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o collisiondetection.o collisiondetection.cpp
 
 ####### Install
 

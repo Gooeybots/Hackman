@@ -12,6 +12,7 @@
 #include "visibleobject.hpp"
 #include "character.hpp"
 #include "ai.hpp"
+#include "collisiondetection.hpp"
 
 struct Movement
 {
@@ -42,8 +43,12 @@ bool PlayGame(Map map, ResourceManager resourceManager)
     {
         double currTime(glfwGetTime()), prevTime(currTime);
         GetVecFullOfObjects(objectVec, map, resourceManager);
+
         AI ai(GetPlayer(2, objectVec), GetPlayer(1, objectVec));
         aiVec.push_back(ai);
+
+        CollisionDetection collisionDetect;
+        collisionDetect.AddPlayersAndEnemys(objectVec);
 
         for(bool nextMap(false); !nextMap &&
             !glfwWindowShouldClose(glfwGetCurrentContext());)
@@ -60,6 +65,12 @@ bool PlayGame(Map map, ResourceManager resourceManager)
                         nextMap = true;
                     }
                 obj->Draw(view);
+            }
+/* TODO: need to add lives to player and remove one on contact if all lives gone return true */
+            if(collisionDetect.DetectCollisions())
+            {
+                playing = false;
+                nextMap = true;
             }
 
             glfwSwapBuffers(glfwGetCurrentContext());
