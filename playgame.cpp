@@ -13,6 +13,7 @@
 #include "character.hpp"
 #include "ai.hpp"
 #include "collisiondetection.hpp"
+#include "textrenderer.hpp"
 
 struct Movement
 {
@@ -33,6 +34,9 @@ std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,
 
 bool PlayGame(Map map, ResourceManager resourceManager)
 {
+    TextRenderer textRender;
+    textRender.AddText("Score:", TextRenderer::Alignment::Right, TextRenderer::Alignment::Top,
+                       20.0f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     glm::mat4 view(glm::ortho(0.0f, 40.0f, 0.0f, 30.0f, 1.0f, -1.0f));
     std::vector<std::shared_ptr<VisibleObject>> objectVec;
     std::vector<Movement> movementVec;
@@ -66,6 +70,7 @@ bool PlayGame(Map map, ResourceManager resourceManager)
                     }
                 obj->Draw(view);
             }
+            textRender.DrawAll();
 /* TODO: need to add lives to player and remove one on contact if all lives gone return true */
             if(collisionDetect.DetectCollisions())
             {

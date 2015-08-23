@@ -22,7 +22,8 @@ HEADERS += \
     playgame.hpp \
     ai.hpp \
     directionenum.hpp \
-    collisiondetection.hpp
+    collisiondetection.hpp \
+    textrenderer.hpp
 
 SOURCES += \
     window.cpp \
@@ -39,11 +40,14 @@ SOURCES += \
     setupobjects.cpp \
     playgame.cpp \
     ai.cpp \
-    collisiondetection.cpp
+    collisiondetection.cpp \
+    textrenderer.cpp
 
 OTHER_FILES += \
     textured.vs \
     textured.fs \
     map.txt \
     maps.txt \
-    character.vs
+    character.vs \
+    text.vs \
+    text.fs

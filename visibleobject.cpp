@@ -28,7 +28,7 @@ bool VisibleObject::Move(const Direction dir, const float dt, const Map &map)
 {
     return false;
 }
-#include <iostream>
+
 void VisibleObject::Draw(const glm::mat4 &view)
 {
     glUseProgram(mProgram);
