@@ -52,6 +52,11 @@ unsigned int VisibleObject::GetPlayer()
     return 0;
 }
 
+Direction VisibleObject::GetPrevDirection()
+{
+    return Direction::None;
+}
+
 float VisibleObject::GetX()
 {
     return mXOffset;

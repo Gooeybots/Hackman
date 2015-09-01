@@ -4,6 +4,7 @@
 #include <glm/mat4x4.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <vector>
+#include "pausemenu.hpp"
 #include "directionenum.hpp"
 #include "setupobjects.hpp"
 #include "playgame.hpp"
@@ -21,7 +22,7 @@ struct Movement
     Direction dir;
 };
 
-void GetInput(std::vector<Movement> &movement, std::vector<AI> &aiVec, Map &map);
+bool GetInput(std::vector<Movement> &movement, std::vector<AI> &aiVec, Map &map);
 void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
                   std::vector<std::shared_ptr<VisibleObject>> &objVec);
 bool UpdateTreesAndCheckIfWon(std::shared_ptr<VisibleObject> &player,
@@ -34,9 +35,13 @@ std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,
 
 bool PlayGame(Map map, ResourceManager resourceManager)
 {
+    bool nextMap(false);
     TextRenderer textRender;
-    textRender.AddText("Score:", TextRenderer::Alignment::Right, TextRenderer::Alignment::Top,
-                       20.0f, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+    std::vector<std::string> stringVec;
+    stringVec.push_back("Score:");
+    stringVec.push_back("000345");
+    textRender.AddText("Score:", TextRenderer::Alignment::Center, TextRenderer::Alignment::Top, 20.0f);
+    textRender.AddTextHorizontalAlign(stringVec, TextRenderer::Alignment::Right, TextRenderer::Alignment::Top, 20.0f);
     glm::mat4 view(glm::ortho(0.0f, 40.0f, 0.0f, 30.0f, 1.0f, -1.0f));
     std::vector<std::shared_ptr<VisibleObject>> objectVec;
     std::vector<Movement> movementVec;
@@ -54,11 +59,19 @@ bool PlayGame(Map map, ResourceManager resourceManager)
         CollisionDetection collisionDetect;
         collisionDetect.AddPlayersAndEnemys(objectVec);
 
-        for(bool nextMap(false); !nextMap &&
-            !glfwWindowShouldClose(glfwGetCurrentContext());)
+        while(!nextMap && !glfwWindowShouldClose(glfwGetCurrentContext()))
         {
             glClear(GL_COLOR_BUFFER_BIT);
-            GetInput(movementVec, aiVec, map);
+            if(GetInput(movementVec, aiVec, map))
+            {
+                if(PauseMenu())
+                {
+                    playing = false;
+                    nextMap = false;
+                    break;
+                }
+                glfwSetTime(currTime);
+            }
 
             for(auto & obj : objectVec)
             {
@@ -86,11 +99,22 @@ bool PlayGame(Map map, ResourceManager resourceManager)
         }
     }
 
-    return false;
+    return nextMap;
 }
 
-void GetInput(std::vector<Movement> &movementVec, std::vector<AI> &aiVec, Map &map)
+bool GetInput(std::vector<Movement> &movementVec, std::vector<AI> &aiVec, Map &map)
 {
+    static bool pPressed(false);
+    bool pause(false);
+    if(glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_P) == GLFW_PRESS && !pPressed)
+        pPressed = true;
+    else if(glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_P) == GLFW_RELEASE
+            && pPressed)
+    {
+        pPressed = false;
+        pause = true;
+    }
+
     Movement playerMovement;
     playerMovement.player = 1;
     if(glfwGetKey(glfwGetCurrentContext(), GLFW_KEY_LEFT) == GLFW_PRESS)
@@ -103,6 +127,7 @@ void GetInput(std::vector<Movement> &movementVec, std::vector<AI> &aiVec, Map &m
         playerMovement.dir = Direction::Down;
     else
         playerMovement.dir = Direction::None;
+
     movementVec.push_back(playerMovement);
 
     for(auto & which : aiVec)
@@ -112,6 +137,7 @@ void GetInput(std::vector<Movement> &movementVec, std::vector<AI> &aiVec, Map &m
         aiMovement.dir = which.GetMove(map);
         movementVec.push_back(aiMovement);
     }
+    return pause;
 }
 
 void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,

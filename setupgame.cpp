@@ -21,6 +21,7 @@ bool SetupGame()
     Map map;
 
     resourceManager.CreateTexture("geoff.png");
+    resourceManager.CreateTexture("wolf.png");
     resourceManager.CreateTexture("scenery.png");
     resourceManager.CreateProgram("textured.vs", "textured.fs");
     resourceManager.CreateProgram("character.vs", "textured.fs");

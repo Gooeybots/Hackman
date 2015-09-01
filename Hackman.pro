@@ -23,7 +23,9 @@ HEADERS += \
     ai.hpp \
     directionenum.hpp \
     collisiondetection.hpp \
-    textrenderer.hpp
+    textrenderer.hpp \
+    mainmenu.hpp \
+    pausemenu.hpp
 
 SOURCES += \
     window.cpp \
@@ -41,7 +43,9 @@ SOURCES += \
     playgame.cpp \
     ai.cpp \
     collisiondetection.cpp \
-    textrenderer.cpp
+    textrenderer.cpp \
+    mainmenu.cpp \
+    pausemenu.cpp
 
 OTHER_FILES += \
     textured.vs \

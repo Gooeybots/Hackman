@@ -64,6 +64,7 @@ bool Character::Move(const Direction dir, const float dt, const Map &map)
     { 
         if(map.CanMove(dir, glm::ivec2((int)mXOffset, (int)mYOffset)))
         {
+            lastFullMove = dir;
             prevDir = dir;
             if(dir == Direction::Left || dir == Direction::Right)
             {
@@ -126,6 +127,11 @@ bool Character::Move(const Direction dir, const float dt, const Map &map)
         }
     }
     return moved;
+}
+
+Direction Character::GetPrevDirection()
+{
+    return lastFullMove;
 }
 
 unsigned int Character::GetPlayer()

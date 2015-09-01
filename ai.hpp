@@ -5,6 +5,7 @@
 #include <memory>
 #include <deque> // open list
 #include <list> //   closed list
+#include <glm/vec2.hpp>
 #include "directionenum.hpp"
 
 class Map;
@@ -45,7 +46,12 @@ class AI
 
     AI(std::shared_ptr<VisibleObject> player,
        std::shared_ptr<VisibleObject> enemy):
-        mPlayer(player), mEnemy(enemy){}
+        mPlayer(player), mEnemy(enemy), mFirstPos(0, 29), mSecondPos(12, 24),
+        mPos(true)
+    {
+        mState = State::Patrol;
+        mChaseType = ChaseType::Stalk;
+    }
 
     Direction GetMove(Map &map);
     unsigned int GetPlayer();
@@ -55,6 +61,13 @@ private:
                           std::list<std::shared_ptr<Positions>> &closedList,
                           std::deque<std::shared_ptr<Positions>> &openList,
                           Map &map);
+
+    void SetXAndYLocation(int &x, int &y);
+    void PutBaseMoveFromCurrentToPath(std::shared_ptr<Positions> &current,
+                                      std::shared_ptr<Positions> &path);
+
+    void GetBestPathClosedList(std::list<std::shared_ptr<Positions>> &list,
+                               std::shared_ptr<Positions> &path);
 
     void AddAdjacentSquares(std::deque<std::shared_ptr<Positions>> &openList,
                             const std::list<std::shared_ptr<Positions>> &closedList,
@@ -71,6 +84,7 @@ private:
     void RemoveFromOpenList(std::deque<std::shared_ptr<Positions>> &openList,
                             std::shared_ptr<Positions> &current);
     void SortOpenListInOrderOfScore(std::deque<std::shared_ptr<Positions>> &openList);
+    bool WithinDistance(int x, int y, int locationX, int locationY, const int distance);
     bool CanMove(const int x, const int y, const Object nextSquare);
     bool IsInClosedList(const unsigned int x, const unsigned int y,
                         const std::list<std::shared_ptr<Positions>> &closedList);
@@ -86,6 +100,11 @@ private:
 
     std::shared_ptr<VisibleObject> mPlayer;
     std::shared_ptr<VisibleObject> mEnemy;
+    glm::vec2 mFirstPos;
+    glm::vec2 mSecondPos;
+    State mState;
+    ChaseType mChaseType;
+    bool mPos;
 };
 
 #endif // AI_HPP

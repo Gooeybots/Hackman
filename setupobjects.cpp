@@ -1,9 +1,11 @@
+#include <algorithm>
 #include "setupobjects.hpp"
 #include "resourcemanager.hpp"
 #include "map.hpp"
 #include "visibleobject.hpp"
 #include "character.hpp"
 
+bool ByPlayer(std::shared_ptr<VisibleObject> &a, std::shared_ptr<VisibleObject> &b);
 std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const float x,
                                                  const float y, ResourceManager &resMan);
 
@@ -22,6 +24,18 @@ void GetVecFullOfObjects(std::vector<std::shared_ptr<VisibleObject> > &vec,
                 vec.push_back(ptr);
         }
     }
+    std::sort(vec.begin(), vec.end(), ByPlayer);
+}
+
+bool ByPlayer(std::shared_ptr<VisibleObject> &a,
+              std::shared_ptr<VisibleObject> &b)
+{
+    bool retValue(false);
+    if(a == b && b == 0)
+        retValue = true;
+    else if(a > b && b != 0)
+        retValue = true;
+    return retValue;
 }
 
 std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const float x,
@@ -30,7 +44,8 @@ std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const float x
     typedef std::shared_ptr<VisibleObject> ptr;
     float xOffset(x * 1.0f), yOffset(y * 1.0f);
     unsigned int geoffTexture(resMan.GetTexture("geoff.png")),
-            sceneryTexture(resMan.GetTexture("scenery.png"));
+            sceneryTexture(resMan.GetTexture("scenery.png")),
+            wolfTexture(resMan.GetTexture("wolf.png"));
     unsigned int vaoTopLeft(resMan.GetVao("vao top left")),
             vaoTopRight(resMan.GetVao("vao top right")),
             vaoBottomLeft(resMan.GetVao("vao bottom left")),
@@ -46,7 +61,7 @@ std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const float x
         break;
     case Object::enemy1:
         return ptr(new Character(xOffset, yOffset, 4.0f, 2, vaoTopLeft, vaoBottomLeft,
-                                 geoffTexture, characterProgram));
+                                 wolfTexture, characterProgram));
         break;
     case Object::enemy2:
         return ptr(new Character(xOffset, yOffset, 4.0f, 4, vaoTopLeft, vaoBottomLeft,

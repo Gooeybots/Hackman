@@ -1,11 +1,11 @@
 #include "window.hpp"
-#include "setupgame.hpp"
+#include "mainmenu.hpp"
 
 int main()
 {
     if(SetupWindow("Hackman", 1024, 768))
     {
-        SetupGame();
+        MainMenu();
     }
     return 0;
 }

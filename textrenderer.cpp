@@ -90,6 +90,114 @@ void TextRenderer::AddText(const std::string &text, const Alignment horiAlign,
     }
 }
 
+void TextRenderer::AddTextVerticalAlign(const std::vector<std::string> &textVec, const Alignment horizontal,
+                                        const Alignment vertical, const float size, const glm::vec4 &colour)
+{
+    float offsetSize(0.0f);
+    switch(vertical)
+    {
+    case Alignment::Center:
+        offsetSize = (textVec.size() / 2.0f) * size;
+        break;
+    case Alignment::Bottom:
+        offsetSize = (textVec.size() * size) - size;
+        break;
+    case Alignment::Top:
+    case Alignment::Left:
+    case Alignment::Right:
+    default:
+        break;
+    }
+
+    for(auto & text : textVec)
+    {
+        std::vector<std::shared_ptr<TextRenderer::Text>>::iterator textIt(GetPositionOfText(text));
+        if(textIt == mTextVec.end())
+        {
+            float xOffset(AlignHorizontally(horizontal, text.size(), size));
+            float yOffset(AlignVertically(vertical, size));
+            yOffset += offsetSize;
+            std::shared_ptr<Text> tPoint(new Text(text, colour, xOffset, yOffset, size));
+            mTextVec.push_back(tPoint);
+        }
+        else
+        {
+            (*textIt)->mXOffset = AlignHorizontally(horizontal, text.size(), size);
+            (*textIt)->mYOffset = AlignVertically(vertical, size);
+            (*textIt)->mYOffset += offsetSize;
+        }
+        offsetSize -= size;
+    }
+}
+
+void TextRenderer::AddTextHorizontalAlign(const std::vector<std::string> &textVec, const Alignment horizontal,
+                                          const Alignment vertical, const float size, const glm::vec4 &colour)
+{
+    float offsetSize(0.0f);
+    switch(horizontal)
+    {
+    case Alignment::Center:
+        offsetSize = AlignHorizontally(horizontal, 0, 0);
+        offsetSize += GetOffsetForCenterVec(textVec, size);
+        break;
+    case Alignment::Right:
+        offsetSize = -(GetSizeOfAllText(textVec) * size);
+        break;
+    case Alignment::Left:
+    case Alignment::Top:
+    case Alignment::Bottom:
+    default:
+        break;
+    }
+
+    for(auto text(textVec.begin()); text != textVec.end(); ++text)
+    {
+        std::shared_ptr<Text> tPoint(nullptr);
+
+        if(horizontal == Alignment::Right)
+            offsetSize += (*text).size() * size;
+
+        auto textIt(GetPositionOfText(*text));
+        if(textIt == mTextVec.end())
+        {
+            float xOffset(AlignHorizontally(horizontal, (*text).size(), size));
+            xOffset += offsetSize;
+            float yOffset(AlignVertically(vertical, size));
+
+            if(horizontal == Alignment::Center)
+                tPoint = std::make_shared<Text>((*text), colour, offsetSize, yOffset, size);
+            else
+                tPoint = std::make_shared<Text>((*text), colour, xOffset, yOffset, size);
+
+            mTextVec.push_back(tPoint);
+        }
+        else
+        {
+            if(horizontal == Alignment::Center)
+                (*textIt)->mXOffset = offsetSize;
+            else
+            {
+                (*textIt)->mXOffset = AlignHorizontally(horizontal, (*text).size(), size);
+                (*textIt)->mXOffset += offsetSize;
+            }
+
+            (*textIt)->mYOffset = AlignVertically(vertical, size);
+            (*textIt)->mColour = colour;
+            (*textIt)->mSize = size;
+            (*textIt)->UpdateModel();
+        }
+
+        if(horizontal == Alignment::Left)
+            offsetSize += (*text).size() * size;
+        else if(horizontal == Alignment::Center)
+        {
+            offsetSize += (((*text).size() * size) * 0.5f);
+            if(text + 1 != textVec.end())
+                offsetSize += (((*(text+1)).size() * size) * 0.5f);
+        }
+    }
+}
+
 void TextRenderer::AddTextBottomLeft(const std::string &text, const float leftOffset,
                                      const float bottomOffset, const float size, const glm::vec4 &colour)
 {
@@ -613,6 +721,26 @@ float TextRenderer::AlignHorizontally(const Alignment alignment, const size_t st
 
     }
     return xOffset;
+}
+
+float TextRenderer::GetSizeOfAllText(const std::vector<std::string> &textVec)
+{
+    float size(0.0f);
+    for(auto & text : textVec)
+    {
+        size += text.size() * 1.0f;
+    }
+    return size;
+}
+
+float TextRenderer::GetOffsetForCenterVec(const std::vector<std::string> &textVec, float size)
+{
+    auto text(textVec.begin());
+
+    float offset(-((GetSizeOfAllText(textVec) * 0.5f) * size));
+    offset += ((text->size() * 0.5f) * size);
+
+    return offset;
 }
 
 bool TextRenderer::IsTextInVector(const std::string &text)

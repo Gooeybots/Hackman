@@ -18,6 +18,7 @@ public:
     void Draw(const glm::mat4 &view);
 /* moves character speed * dt and returns true if character moved square */
     bool Move(const Direction dir, const float dt, const Map &map);
+    Direction GetPrevDirection();
     unsigned int GetPlayer(); // will return 0 if not a player
     glm::mat4 GetModel();
 
@@ -30,6 +31,7 @@ protected:
 
     void UpdateModel(const Direction dir);
 
+    Direction lastFullMove;
     Direction prevDir;
     float currTime, prevTime;
     float mSpeed;

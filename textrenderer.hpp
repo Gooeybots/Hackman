@@ -27,13 +27,18 @@ public:
     void Draw(const std::string &text);
 // The offset is from the left/bottom of the text
     void AddText(const std::string &text, const float xOffset, const Alignment vertical,
-                 const float size, const glm::vec4 &colour);
+                 const float size, const glm::vec4 &colour = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
     void AddText(const std::string &text, const Alignment horizontal, const float yOffset,
-                 const float size, const glm::vec4 &colour);
+                 const float size, const glm::vec4 &colour = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 // Adds text to the renderer at a certain alignment always stays at that alignment until it is changed
     void AddText(const std::string &text, const Alignment horizontal, const Alignment vertical,
-                 const float size, const glm::vec4 &colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
-
+                 const float size, const glm::vec4 &colour = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+// Adds text to the renderer aligned seperated from top to bottom
+    void AddTextVerticalAlign(const std::vector<std::string> &text, const Alignment horizontal, const Alignment vertical,
+                 const float size, const glm::vec4 &colour = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
+// Same as above but from left to right
+    void AddTextHorizontalAlign(const std::vector<std::string> &text, const Alignment horizontal, const Alignment vertical,
+                                const float size, const glm::vec4 &colour = glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 // Adds text to the renderer at a certain position in pixels from the bottom left
     void AddTextBottomLeft(const std::string &text, const float leftOffset, const float bottomOffset,
                            const float size, const glm::vec4 &colour = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -90,6 +95,8 @@ private:
     std::vector<std::shared_ptr<Text>>::iterator GetPositionOfText(const std::string &text);
     float AlignVertically(const Alignment vertAlign, const float size);
     float AlignHorizontally(const Alignment horiAlign, const size_t stringLength, const float size);
+    float GetSizeOfAllText(const std::vector<std::string> &text);
+    float GetOffsetForCenterVec(const std::vector<std::string> &text, const float size);
     bool IsTextInVector(const std::string &text);
     void Draw(const Text &text);
     void UpdateSizeAndPosition(Text &text, const float size);

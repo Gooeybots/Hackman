@@ -4,6 +4,8 @@
 #include <glm/mat4x4.hpp>
 #include "directionenum.hpp"
 
+#include "directionenum.hpp"
+
 class Map;
 
 class VisibleObject
@@ -18,6 +20,7 @@ public:
     virtual bool Move(const Direction dir, const float dt, const Map &map);
     virtual unsigned int GetPlayer(); // will return 0 if not a player
     virtual glm::mat4 GetModel();
+    virtual Direction GetPrevDirection();
 
     void SwitchVaos();
     float GetX();

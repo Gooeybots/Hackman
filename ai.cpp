@@ -10,15 +10,108 @@ bool SortPositions(std::shared_ptr<AI::Positions> &a,
 
 Direction AI::GetMove(Map &map)
 {
-    std::shared_ptr<Positions> target(new Positions(
-                (int)mEnemy->GetX(), (int)mEnemy->GetY(), 0, 0, nullptr));
-    std::shared_ptr<Positions> location(new Positions(
-                (int)mPlayer->GetX(), (int)mPlayer->GetY(), 0, 0, nullptr));
+    Direction dir(Direction::None);
+
     std::list<std::shared_ptr<Positions>> closedList;
     std::deque<std::shared_ptr<Positions>> openList;
+    std::shared_ptr<Positions> target(nullptr);
+    std::shared_ptr<Positions> location(new Positions((int)mPlayer->GetX(),
+                                    (int)mPlayer->GetY(), 0, 0, nullptr));
+    int x((int)mEnemy->GetX()), y((int)mEnemy->GetY());
+    int distance(2);
 
-    openList.push_back(location);
-    return FindShortestPath(target, location, closedList, openList, map);
+    switch(mState)
+    {
+    case State::Chase:
+        switch(mChaseType)
+        {
+        case ChaseType::Behind:
+            distance = -distance;
+        case ChaseType::Infront:
+            switch(mEnemy->GetPrevDirection())
+            {
+            case Direction::Up:
+                y += distance; break;
+            case Direction::Down:
+                y -= distance; break;
+            case Direction::Left:
+                x -= distance; break;
+            case Direction::Right:
+                x += distance; break;
+            case Direction::None:
+            default:
+                x += distance; y += distance; break;
+            }
+            break;
+        case ChaseType::Stalk:
+            distance = 5;
+            switch(mEnemy->GetPrevDirection())
+            {
+            case Direction::Up:
+                x += distance; break;
+            case Direction::Down:
+                x -= distance; break;
+            case Direction::Left:
+                y -= distance; break;
+            case Direction::Right:
+                y += distance; break;
+            case Direction::None:
+            default:
+                x += distance; y += distance; break;
+            }
+            break;
+        case ChaseType::DeadOn:
+        default:
+            break;
+        }
+        break;
+    case State::Retreat:
+        x > 13 ? x = 0 : x = 27;
+        y > 14 ? y = 0 : y = 29;
+        break;
+    case State::Patrol:
+        SetXAndYLocation(x, y);
+        if(WithinDistance(x, y, location->x, location->y, 2))
+        {
+            mPos = !mPos;
+            SetXAndYLocation(x, y);
+        }
+        break;
+    default:
+        break;
+    }
+    target = std::make_shared<Positions>(x, y, 0, 0, nullptr);
+
+    if(!(location->x == target->x && location->y == target->y))
+    {
+        location->distance = GetDistanceToTarget(location->x, location->y,
+                                                 target->x, target->y);
+        x = location->x; y = location->y;
+        switch(mPlayer->GetPrevDirection())
+        {
+        case Direction::Up:
+            y -= 1; break;
+        case Direction::Down:
+            y += 1; break;
+        case Direction::Left:
+            x += 1; break;
+        case Direction::Right:
+            x -= 1; break;
+        case Direction::None:
+        default:
+            x -= 1; y -= 1;
+            break;
+        }
+        std::shared_ptr<Positions> lastStep(new Positions(x, y, 1000, 0, nullptr));
+        openList.push_back(location);
+        closedList.push_back(lastStep);
+
+        dir = FindShortestPath(target, location, closedList, openList, map);
+    }
+    else
+        dir = mPlayer->GetPrevDirection();
+
+    return dir;
 }
 
 Direction AI::FindShortestPath(std::shared_ptr<Positions> &target,
@@ -32,28 +125,59 @@ Direction AI::FindShortestPath(std::shared_ptr<Positions> &target,
     {
         if(!openList.empty())
             current = openList.front();
-
         AddToClosedList(closedList, current);
         RemoveFromOpenList(openList, current);
 
         if(current->x == target->x && current->y == target->y)
-        {
-            while(current->parent != nullptr)
-            {
-                path = current;
-                current = current->parent;
-            }
+            PutBaseMoveFromCurrentToPath(current, path);
 
-            break;
-        }
         AddAdjacentSquares(openList, closedList, current, target, map);
         SortOpenListInOrderOfScore(openList);
     }while((!openList.empty()));
 
     if(!path)
-        return Direction::None;
-    else
-        return GetDirection(location, path);
+        GetBestPathClosedList(closedList, path);
+
+    return GetDirection(location, path);
+}
+
+void AI::SetXAndYLocation(int &x, int &y)
+{
+    x = (mPos ? mFirstPos.x : mSecondPos.x);
+    y = (mPos ? mFirstPos.y : mSecondPos.y);
+}
+
+void AI::PutBaseMoveFromCurrentToPath(std::shared_ptr<Positions> &current,
+                                      std::shared_ptr<Positions> &path)
+{
+    if(current->parent != nullptr)
+    {
+        while(current->parent != nullptr)
+        {
+            path = current;
+            current = current->parent;
+        }
+    }
+}
+
+void AI::GetBestPathClosedList(std::list<std::shared_ptr<Positions> > &list,
+                               std::shared_ptr<Positions> &path)
+{
+    if(!list.empty())
+    {
+        std::shared_ptr<Positions> current = list.back();
+        for(auto positionPtr(list.begin()); positionPtr != list.end(); ++positionPtr)
+        {
+            if((*positionPtr)->distance < current->distance)
+                current = *positionPtr;
+            else if((*positionPtr)->distance == current->distance &&
+                    (*positionPtr)->moves < current->moves)
+                current = *positionPtr;
+        }
+        PutBaseMoveFromCurrentToPath(current, path);
+        if(!path)
+            path = list.back();
+    }
 }
 
 unsigned int AI::GetPlayer()
@@ -97,7 +221,7 @@ void AI::AddAdjacentSquares(std::deque<std::shared_ptr<Positions> > &openList,
                     if(found->moves > current->moves + 1)
                     {
                         found->parent = current;
-                        found->moves = current->moves +1;
+                        found->moves = current->moves + 1;
                     }
                 }
             }
@@ -147,6 +271,18 @@ bool SortPositions(std::shared_ptr<AI::Positions> &a,
     return ((a->moves + a->distance) < (b->moves + b->distance));
 }
 
+bool AI::WithinDistance(int x, int y, int locationX, int locationY, const int distance)
+{
+    bool within(false);
+    int lowerBoundX(locationX - distance), upperBoundX(locationX + distance),
+            lowerBoundY(locationY - distance), upperBoundY(locationY + distance);
+
+    if(x >= lowerBoundX && x <= upperBoundX && y >= lowerBoundY && y <= upperBoundY)
+        within = true;
+
+    return within;
+}
+
 bool AI::CanMove(const int x, const int y, const Object nextSquare)
 {
     if(((x < 0 || x > 27 || y > 29 || y < 0)
@@ -178,6 +314,7 @@ Direction AI::GetDirection(const std::shared_ptr<Positions> &start,
                            const std::shared_ptr<Positions> &end)
 {
     Direction dir(Direction::None);
+
     if(end->x > start->x)
         dir = Direction::Right;
     else if(end->x < start->x)
@@ -186,6 +323,7 @@ Direction AI::GetDirection(const std::shared_ptr<Positions> &start,
         dir = Direction::Up;
     else if(end->y < start->y)
         dir = Direction::Down;
+
     return dir;
 }
 
