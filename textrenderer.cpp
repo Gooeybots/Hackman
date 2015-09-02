@@ -125,6 +125,7 @@ void TextRenderer::AddTextVerticalAlign(const std::vector<std::string> &textVec,
             (*textIt)->mXOffset = AlignHorizontally(horizontal, text.size(), size);
             (*textIt)->mYOffset = AlignVertically(vertical, size);
             (*textIt)->mYOffset += offsetSize;
+            (*textIt)->UpdateModel();
         }
         offsetSize -= size;
     }
@@ -169,7 +170,8 @@ void TextRenderer::AddTextHorizontalAlign(const std::vector<std::string> &textVe
             else
                 tPoint = std::make_shared<Text>((*text), colour, xOffset, yOffset, size);
 
-            mTextVec.push_back(tPoint);
+            if(tPoint)
+                mTextVec.push_back(tPoint);
         }
         else
         {

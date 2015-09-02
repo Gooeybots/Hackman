@@ -22,14 +22,16 @@ struct Movement
     Direction dir;
 };
 
+void UpdateScore(const unsigned int updated, TextRenderer &textRenderer, std::vector<std::string> &strVec);
 bool GetInput(std::vector<Movement> &movement, std::vector<AI> &aiVec, Map &map);
-void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
+bool UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
                   std::vector<std::shared_ptr<VisibleObject>> &objVec);
 bool UpdateTreesAndCheckIfWon(std::shared_ptr<VisibleObject> &player,
-                              std::vector<std::shared_ptr<VisibleObject>> &objVec, Map &map);
+                              std::vector<std::shared_ptr<VisibleObject>> &objVec, Map &map,
+                              unsigned int &score);
 bool UpdatePlayerMovementAndCheckWin(std::shared_ptr<VisibleObject> &player, std::vector<Movement> &moveVec,
                                      std::vector<std::shared_ptr<VisibleObject>> &objVec, Map &map,
-                                     const float deltaTime);
+                                     const float deltaTime, unsigned int &score);
 std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,
                                          std::vector<std::shared_ptr<VisibleObject>> &objVec);
 
@@ -38,10 +40,10 @@ bool PlayGame(Map map, ResourceManager resourceManager)
     bool nextMap(false);
     TextRenderer textRender;
     std::vector<std::string> stringVec;
+    unsigned int score(0);
     stringVec.push_back("Score:");
-    stringVec.push_back("000345");
-    textRender.AddText("Score:", TextRenderer::Alignment::Center, TextRenderer::Alignment::Top, 20.0f);
-    textRender.AddTextHorizontalAlign(stringVec, TextRenderer::Alignment::Right, TextRenderer::Alignment::Top, 20.0f);
+    stringVec.push_back("0");
+    textRender.AddTextVerticalAlign(stringVec, TextRenderer::Alignment::Right, TextRenderer::Alignment::Top, 20.0f);
     glm::mat4 view(glm::ortho(0.0f, 40.0f, 0.0f, 30.0f, 1.0f, -1.0f));
     std::vector<std::shared_ptr<VisibleObject>> objectVec;
     std::vector<Movement> movementVec;
@@ -76,11 +78,19 @@ bool PlayGame(Map map, ResourceManager resourceManager)
             for(auto & obj : objectVec)
             {
                 if(obj->GetPlayer() > 0)
-                    if(UpdatePlayerMovementAndCheckWin(obj, movementVec, objectVec, map, currTime - prevTime))
+                {
+                    unsigned int changedScore(score);
+                    if(UpdatePlayerMovementAndCheckWin(obj, movementVec, objectVec, map, currTime - prevTime, changedScore))
                     {
                         playing = false;
                         nextMap = true;
                     }
+                    if(score != changedScore)
+                    {
+                        UpdateScore(changedScore, textRender, stringVec);
+                        score = changedScore;
+                    }
+                }
                 obj->Draw(view);
             }
             textRender.DrawAll();
@@ -100,6 +110,16 @@ bool PlayGame(Map map, ResourceManager resourceManager)
     }
 
     return nextMap;
+}
+
+void UpdateScore(const unsigned int updated, TextRenderer &textRenderer,
+                 std::vector<std::string> &strVec)
+{
+    textRenderer.RemoveText(*(strVec.begin() + 1));
+    (*(strVec.begin() + 1)) = std::to_string(updated);
+
+    textRenderer.AddTextVerticalAlign(strVec, TextRenderer::Alignment::Right,
+                                      TextRenderer::Alignment::Top, 20);
 }
 
 bool GetInput(std::vector<Movement> &movementVec, std::vector<AI> &aiVec, Map &map)
@@ -140,9 +160,10 @@ bool GetInput(std::vector<Movement> &movementVec, std::vector<AI> &aiVec, Map &m
     return pause;
 }
 
-void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
+bool UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
                   std::vector<std::shared_ptr<VisibleObject> > &objVec)
 {
+    bool retValue(false);
     for(auto & obj : objVec)
     {
         if((int)obj->GetX() == where.x &&
@@ -150,20 +171,24 @@ void UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
         {
             obj->SwitchVaos();
             map.SetObject(where, 0);
+            retValue = true;
             break;
         }
     }
+    return retValue;
 }
 
 bool UpdateTreesAndCheckIfWon(std::shared_ptr<VisibleObject> &player,
-                              std::vector<std::shared_ptr<VisibleObject> > &objectVec, Map &map)
+                              std::vector<std::shared_ptr<VisibleObject> > &objectVec, Map &map,
+                              unsigned int &score)
 {
     bool finished(false);
     glm::ivec2 where((int)(player->GetX()),
                      (int)(player->GetY()));
     if(map.GetWhichObject(where) == Object::tree)
     {
-        UpdateObject(where, map, player->GetPlayer(), objectVec);
+        if(UpdateObject(where, map, player->GetPlayer(), objectVec))
+            score += 10;
         if(map.HasFinished())
             finished = true;
     }
@@ -172,7 +197,7 @@ bool UpdateTreesAndCheckIfWon(std::shared_ptr<VisibleObject> &player,
 
 bool UpdatePlayerMovementAndCheckWin(std::shared_ptr<VisibleObject> &character, std::vector<Movement> &moveVec,
                                      std::vector<std::shared_ptr<VisibleObject> > &objVec, Map &map,
-                                     const float deltaTime)
+                                     const float deltaTime, unsigned int &score)
 {
     bool complete(false);
     for(auto it(moveVec.begin()); it != moveVec.end(); ++it)
@@ -182,7 +207,7 @@ bool UpdatePlayerMovementAndCheckWin(std::shared_ptr<VisibleObject> &character, 
             character->Move(it->dir, deltaTime, map);
             it = moveVec.erase(it);
             if(character->GetPlayer() == 1)
-                complete = UpdateTreesAndCheckIfWon(character, objVec, map);
+                complete = UpdateTreesAndCheckIfWon(character, objVec, map, score);
             break;
         }
     }

@@ -25,7 +25,8 @@ HEADERS += \
     collisiondetection.hpp \
     textrenderer.hpp \
     mainmenu.hpp \
-    pausemenu.hpp
+    pausemenu.hpp \
+    menuupdate.hpp
 
 SOURCES += \
     window.cpp \
@@ -45,7 +46,8 @@ SOURCES += \
     collisiondetection.cpp \
     textrenderer.cpp \
     mainmenu.cpp \
-    pausemenu.cpp
+    pausemenu.cpp \
+    menuupdate.cpp
 
 OTHER_FILES += \
     textured.vs \

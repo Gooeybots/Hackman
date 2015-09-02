@@ -56,6 +56,4 @@ bool SetupWindow(const char * title, const int width, const int height)
 void Resize(GLFWwindow * window, int width, int height)
 {
     glViewport(0, 0, width, height);
-    if(window)
-        return;
 }
