@@ -11,14 +11,14 @@ GLuint LoadTexture(const char * filename)
     unsigned int error(lodepng::decode(image, width, height, filename));
     if(error)
     {
-        std::cout << "Couldn't load " << filename << "\n";
+        std::cerr << "Couldn't load " << filename << "\n";
     }
     else
     {
         glGenTextures(1, &texture);
         if(texture == 0)
         {
-            std::cout << "Couldn't generate texture " << filename << "\n";
+            std::cerr << "Couldn't generate texture " << filename << "\n";
         }
         else
         {
@@ -37,7 +37,7 @@ GLuint LoadTexture(const char * filename)
             GLenum error(glGetError());
             if(error != GL_NO_ERROR)
             {
-                std::cout << error << " Problem allocating texture " << filename << "\n";
+                std::cerr << error << " Problem allocating texture " << filename << "\n";
                 glDeleteTextures(1, &texture);
                 texture = 0;
             }

@@ -21,7 +21,8 @@ bool PauseMenu()
                                           TextRenderer::Alignment::Center, 35.0f,
                                           glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
         textRenderer.ChangeTextColour("Continue", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-
+        textRenderer.AddText("Press Enter To Select Menu Item", TextRenderer::Alignment::Center,
+                             TextRenderer::Alignment::Bottom, 20, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
         unsigned int menuPos(0);
         bool menuOptionSelected(false);
         bool enterPressed(false);

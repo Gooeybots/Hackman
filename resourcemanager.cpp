@@ -6,7 +6,7 @@
 ResourceManager::ResourceManager()
 {
 }
-
+#include <iostream>
 ResourceManager::~ResourceManager()
 {
     for(auto const &id : mMap)

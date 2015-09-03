@@ -22,6 +22,10 @@ struct Movement
     Direction dir;
 };
 
+void GetPlayerLives(std::vector<std::shared_ptr<VisibleObject>> &objVec,
+                    std::vector<std::string> &livesVec);
+bool UpdateLives(std::vector<std::shared_ptr<VisibleObject>> &objVec,
+                 TextRenderer &textRenderer, std::vector<std::string> &strVec);
 void UpdateScore(const unsigned int updated, TextRenderer &textRenderer, std::vector<std::string> &strVec);
 bool GetInput(std::vector<Movement> &movement, std::vector<AI> &aiVec, Map &map);
 bool UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
@@ -40,6 +44,7 @@ bool PlayGame(Map map, ResourceManager resourceManager)
     bool nextMap(false);
     TextRenderer textRender;
     std::vector<std::string> stringVec;
+    std::vector<std::string> livesVec;
     unsigned int score(0);
     stringVec.push_back("Score:");
     stringVec.push_back("0");
@@ -54,6 +59,8 @@ bool PlayGame(Map map, ResourceManager resourceManager)
     {
         double currTime(glfwGetTime()), prevTime(currTime);
         GetVecFullOfObjects(objectVec, map, resourceManager);
+        GetPlayerLives(objectVec, livesVec);
+        textRender.AddTextHorizontalAlign(livesVec, TextRenderer::Alignment::Right, TextRenderer::Alignment::Bottom, 20.0f);
 
         AI ai(GetPlayer(2, objectVec), GetPlayer(1, objectVec));
         aiVec.push_back(ai);
@@ -63,6 +70,7 @@ bool PlayGame(Map map, ResourceManager resourceManager)
 
         while(!nextMap && !glfwWindowShouldClose(glfwGetCurrentContext()))
         {
+
             glClear(GL_COLOR_BUFFER_BIT);
             if(GetInput(movementVec, aiVec, map))
             {
@@ -74,7 +82,6 @@ bool PlayGame(Map map, ResourceManager resourceManager)
                 }
                 glfwSetTime(currTime);
             }
-
             for(auto & obj : objectVec)
             {
                 if(obj->GetPlayer() > 0)
@@ -94,11 +101,14 @@ bool PlayGame(Map map, ResourceManager resourceManager)
                 obj->Draw(view);
             }
             textRender.DrawAll();
-/* TODO: need to add lives to player and remove one on contact if all lives gone return true */
+
             if(collisionDetect.DetectCollisions())
             {
-                playing = false;
-                nextMap = true;
+                if(UpdateLives(objectVec, textRender, livesVec))
+                {
+                    playing = false;
+                    nextMap = true;
+                }
             }
 
             glfwSwapBuffers(glfwGetCurrentContext());
@@ -110,6 +120,38 @@ bool PlayGame(Map map, ResourceManager resourceManager)
     }
 
     return nextMap;
+}
+
+void GetPlayerLives(std::vector<std::shared_ptr<VisibleObject> > &objVec,
+                    std::vector<std::string> &livesVec)
+{
+    livesVec.push_back("Lives: ");
+    for(auto & obj : objVec)
+    {
+        if(obj->GetPlayer() == 1)
+            livesVec.push_back(std::to_string(obj->GetLives()));
+    }
+}
+
+bool UpdateLives(std::vector<std::shared_ptr<VisibleObject> > &objVec,
+                 TextRenderer &textRenderer, std::vector<std::string> &strVec)
+{
+    unsigned int lives(0);
+    for(auto & player : objVec)
+    {
+        if(player->GetPlayer() == 1)
+        {
+            lives = player->GetLives();
+            break;
+        }
+    }
+    textRenderer.RemoveText(*(strVec.begin() + 1));
+    (*(strVec.begin() + 1)) = std::to_string(lives);
+    textRenderer.AddTextHorizontalAlign(strVec, TextRenderer::Alignment::Right,
+                                      TextRenderer::Alignment::Bottom, 20);
+    if(lives == 0)
+        return true;
+    return false;
 }
 
 void UpdateScore(const unsigned int updated, TextRenderer &textRenderer,
@@ -157,6 +199,7 @@ bool GetInput(std::vector<Movement> &movementVec, std::vector<AI> &aiVec, Map &m
         aiMovement.dir = which.GetMove(map);
         movementVec.push_back(aiMovement);
     }
+
     return pause;
 }
 

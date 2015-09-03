@@ -45,7 +45,8 @@ std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const float x
     float xOffset(x * 1.0f), yOffset(y * 1.0f);
     unsigned int geoffTexture(resMan.GetTexture("geoff.png")),
             sceneryTexture(resMan.GetTexture("scenery.png")),
-            wolfTexture(resMan.GetTexture("wolf.png"));
+            wolfTexture(resMan.GetTexture("wolf.png")),
+            bearTexture(resMan.GetTexture("bear.png"));
     unsigned int vaoTopLeft(resMan.GetVao("vao top left")),
             vaoTopRight(resMan.GetVao("vao top right")),
             vaoBottomLeft(resMan.GetVao("vao bottom left")),
@@ -57,22 +58,22 @@ std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const float x
     {
     case Object::player:
         return ptr(new Character(xOffset, yOffset, 4.0f, 1, vaoTopLeft, vaoBottomLeft,
-                                 geoffTexture, characterProgram));
+                                 geoffTexture, characterProgram, 3));
         break;
     case Object::enemy1:
         return ptr(new Character(xOffset, yOffset, 4.0f, 2, vaoTopLeft, vaoBottomLeft,
                                  wolfTexture, characterProgram));
         break;
     case Object::enemy2:
+        return ptr(new Character(xOffset, yOffset, 4.0f, 3, vaoTopLeft, vaoBottomLeft,
+                                 bearTexture, characterProgram));
+        break;
+    case Object::enemy3:
         return ptr(new Character(xOffset, yOffset, 4.0f, 4, vaoTopLeft, vaoBottomLeft,
                                  geoffTexture, characterProgram));
         break;
-    case Object::enemy3:
-        return ptr(new Character(xOffset, yOffset, 4.0f, 8, vaoTopLeft, vaoBottomLeft,
-                                 geoffTexture, characterProgram));
-        break;
     case Object::enemy4:
-        return ptr(new Character(xOffset, yOffset, 4.0f, 16, vaoTopLeft, vaoBottomLeft,
+        return ptr(new Character(xOffset, yOffset, 4.0f, 5, vaoTopLeft, vaoBottomLeft,
                                  geoffTexture, characterProgram));
         break;
     case Object::tree:

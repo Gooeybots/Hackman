@@ -69,7 +69,7 @@ bool Map::RetriveMapFromFile()
             unsigned int item;
             data >> item;
             square = item;
-            if(item == 32)
+            if(item == 1)
                 mTrees += 1;
         }
         return true;
@@ -132,44 +132,43 @@ Object Map::GetWhichObject(const glm::ivec2 &whichSquare) const
     switch(item)
     {
     case 1:
-        obj = Object::player;
-        break;
-    case 2: case 3:
-        obj = Object::enemy1;
-        break;
-    case 4: case 5: case 6: case 7:
-        obj = Object::enemy2;
-        break;
-    case 8: case 9: case 10: case 11: case 12: case 13: case 14: case 15:
-        obj = Object::enemy3;
-        break;
-    case 16: case 17: case 18: case 19: case 20: case 21: case 22: case 23:
-    case 24: case 25: case 26: case 27: case 28: case 29: case 30: case 31:
-        obj = Object::enemy4;
-        break;
-    case 32:
         obj = Object::tree;
         break;
-    case 33:
+    case 2:
         obj = Object::choppedTree;
         break;
-    case 34:
+    case 3:
         obj = Object::block1;
         break;
-    case 35:
+    case 4:
         obj = Object::block2;
         break;
-    case 36:
+    case 5:
         obj = Object::wolfEntrance;
         break;
-    case 37:
+    case 6:
         obj = Object::passThrough;
         break;
-    case 38:
+    case 7:
         obj = Object::powerPill;
         break;
-    case 39:
+    case 8:
         obj = Object::specialObject;
+        break;
+    case 9:
+        obj = Object::player;
+        break;
+    case 10:
+        obj = Object::enemy1;
+        break;
+    case 11:
+        obj = Object::enemy2;
+        break;
+    case 12:
+        obj = Object::enemy3;
+        break;
+    case 13:
+        obj = Object::enemy4;
         break;
     default:
         obj = Object::none;

@@ -10,8 +10,7 @@ class CollisionDetection
 {
 public:
     CollisionDetection();
-// TODO: Take life off the player that has been hit
-/* will return true if there is a collision between an enemy and a player */
+/* returns true if collision happens between any player and enemy */
     bool DetectCollisions();
 
 /* These will add to the correct vector if they are not already present */

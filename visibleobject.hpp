@@ -17,10 +17,13 @@ public:
     virtual ~VisibleObject();
 
     virtual void Draw(const glm::mat4 &view);
+    virtual void TakeLife();
+    virtual void ResetToOriginalSquare();
     virtual bool Move(const Direction dir, const float dt, const Map &map);
-    virtual unsigned int GetPlayer(); // will return 0 if not a player
-    virtual glm::mat4 GetModel();
     virtual Direction GetPrevDirection();
+    virtual unsigned int GetPlayer(); // will return 0 if not a player
+    virtual unsigned int GetLives();  // will return 0 if not a player
+    virtual glm::mat4 GetModel();
 
     void SwitchVaos();
     float GetX();

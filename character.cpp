@@ -10,10 +10,11 @@
 Character::Character(const float x, const float y, const float speed,
                      const unsigned int player, const unsigned int vao,
                      const unsigned int nextVao, const unsigned int texture,
-                     const unsigned int program, Direction dir):
+                     const unsigned int program, const unsigned int lives,
+                     const Direction dir):
     VisibleObject(x, y, vao, nextVao, texture, program),
-    prevDir(dir), currTime(0.0), prevTime(0.0f), mSpeed(speed),
-    mPlayer(player), mModel(1.0f){}
+    prevDir(dir), mPlayer(player), mLives(lives), currTime(0.0),
+    prevTime(0.0f), mSpeed(speed), mHomeSquare(x,y), mModel(1.0f){}
 
 Character::~Character(){}
 
@@ -38,6 +39,19 @@ void Character::Draw(const glm::mat4 &view)
     glBindTexture(GL_TEXTURE_2D, 0);
     glBindVertexArray(0);
     glUseProgram(0);
+}
+
+void Character::TakeLife()
+{
+    if(mLives > 0)
+        mLives -= 1;
+}
+
+void Character::ResetToOriginalSquare()
+{
+    mXOffset = mHomeSquare.x;
+    mYOffset = mHomeSquare.y;
+    UpdateModel(prevDir);
 }
 
 bool Character::Move(const Direction dir, const float dt, const Map &map)
@@ -137,6 +151,11 @@ Direction Character::GetPrevDirection()
 unsigned int Character::GetPlayer()
 {
     return mPlayer;
+}
+
+unsigned int Character::GetLives()
+{
+    return mLives;
 }
 
 bool Character::CanMoveWithoutChangingSquare(const glm::vec2 &where,

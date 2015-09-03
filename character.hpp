@@ -10,16 +10,18 @@ class Character : public VisibleObject
 {
 public:
     Character(const float x, const float y, const float speed, const unsigned int player,
-              const unsigned int vao, const unsigned int nextVao,
-              const unsigned int texture, const unsigned int program,
-              Direction = Direction::Right);
+              const unsigned int vao, const unsigned int nextVao, const unsigned int texture,
+              const unsigned int program, const unsigned int lives = 0, Direction = Direction::Right);
     ~Character();
 
     void Draw(const glm::mat4 &view);
+    void TakeLife();
+    void ResetToOriginalSquare();
 /* moves character speed * dt and returns true if character moved square */
     bool Move(const Direction dir, const float dt, const Map &map);
     Direction GetPrevDirection();
     unsigned int GetPlayer(); // will return 0 if not a player
+    unsigned int GetLives();  // will return 0 if not a player
     glm::mat4 GetModel();
 
 protected:
@@ -33,9 +35,12 @@ protected:
 
     Direction lastFullMove;
     Direction prevDir;
-    float currTime, prevTime;
-    float mSpeed;
     unsigned int mPlayer;
+    unsigned int mLives;
+    float currTime;
+    float prevTime;
+    float mSpeed;
+    glm::vec2 mHomeSquare;
     glm::mat4 mModel;
 };
 

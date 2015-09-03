@@ -26,7 +26,8 @@ HEADERS += \
     textrenderer.hpp \
     mainmenu.hpp \
     pausemenu.hpp \
-    menuupdate.hpp
+    menuupdate.hpp \
+    highscoremenu.hpp
 
 SOURCES += \
     window.cpp \
@@ -47,7 +48,8 @@ SOURCES += \
     textrenderer.cpp \
     mainmenu.cpp \
     pausemenu.cpp \
-    menuupdate.cpp
+    menuupdate.cpp \
+    highscoremenu.cpp
 
 OTHER_FILES += \
     textured.vs \
@@ -57,3 +59,6 @@ OTHER_FILES += \
     character.vs \
     text.vs \
     text.fs
+
+DISTFILES += \
+    highscores.txt

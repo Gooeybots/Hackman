@@ -19,6 +19,10 @@ void VisibleObject::SwitchVaos()
     mNextVao = temp;
 }
 
+void VisibleObject::TakeLife(){}
+
+void VisibleObject::ResetToOriginalSquare(){}
+
 glm::mat4 VisibleObject::GetModel()
 {
     return glm::mat4(1.0f);
@@ -47,14 +51,19 @@ void VisibleObject::Draw(const glm::mat4 &view)
     glUseProgram(0);
 }
 
+Direction VisibleObject::GetPrevDirection()
+{
+    return Direction::None;
+}
+
 unsigned int VisibleObject::GetPlayer()
 {
     return 0;
 }
 
-Direction VisibleObject::GetPrevDirection()
+unsigned int VisibleObject::GetLives()
 {
-    return Direction::None;
+    return 0;
 }
 
 float VisibleObject::GetX()

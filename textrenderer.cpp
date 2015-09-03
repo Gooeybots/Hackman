@@ -34,7 +34,8 @@ void TextRenderer::DrawAll()
         glBindTexture(GL_TEXTURE_2D, mTexture);
         for(auto & text : mTextVec)
         {
-            Draw(*text);
+            if(text)
+                Draw(*text);
         }
         glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);
@@ -48,6 +49,7 @@ void TextRenderer::Draw(const std::string &text)
     {
         glUseProgram(mProgram);
         glBindTexture(GL_TEXTURE_2D, mTexture);
+
         Draw(*(*it));
         glBindTexture(GL_TEXTURE_2D, 0);
         glUseProgram(0);

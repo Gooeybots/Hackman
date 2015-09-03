@@ -1,22 +1,27 @@
 #include "collisiondetection.hpp"
 #include "visibleobject.hpp"
+#include "textrenderer.hpp"
 
 CollisionDetection::CollisionDetection(){}
 
 bool CollisionDetection::DetectCollisions()
 {
-    bool collided(false);
-    for(auto player(mPlayers.begin()); player != mPlayers.end() && !collided; ++player)
+    bool collision(false);
+    for(auto player(mPlayers.begin()); player != mPlayers.end(); ++player)
     {
         int x((*player)->GetX()), y((*player)->GetY());
         for(auto enemy(mEnemys.begin()); enemy != mEnemys.end(); ++enemy)
         {
             int enemyX((*enemy)->GetX()), enemyY((*enemy)->GetY());
             if(enemyX == x && enemyY == y)
-                collided = true;
+            {
+                collision = true;
+                (*player)->TakeLife();
+                (*player)->ResetToOriginalSquare();
+            }
         }
     }
-    return collided;
+    return collision;
 }
 
 void CollisionDetection::AddEnemy(std::shared_ptr<VisibleObject> &enemy)
@@ -35,7 +40,8 @@ void CollisionDetection::AddEnemys(std::vector<std::shared_ptr<VisibleObject> > 
 {
     for(auto enemy(enemysVec.begin()); enemy != enemysVec.end(); ++enemy)
     {
-        AddEnemy(*enemy);
+        if((*enemy)->GetPlayer() > 1)
+            AddEnemy(*enemy);
     }
 }
 
@@ -43,7 +49,8 @@ void CollisionDetection::AddPlayers(std::vector<std::shared_ptr<VisibleObject> >
 {
     for(auto player(playersVec.begin()); player != playersVec.end(); ++player)
     {
-        AddPlayer(*player);
+        if((*player)->GetPlayer() > 0 && (*player)->GetPlayer() < 2)
+            AddPlayer(*player);
     }
 }
 
@@ -54,9 +61,7 @@ void CollisionDetection::AddPlayersAndEnemys(std::vector<std::shared_ptr<Visible
         if((*player)->GetPlayer() > 0)
         {
             if((*player)->GetPlayer() == 1)
-            {
                 AddPlayer(*player);
-            }
             else
                 AddEnemy(*player);
         }
