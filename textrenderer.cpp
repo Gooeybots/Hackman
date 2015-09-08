@@ -9,19 +9,32 @@
 #include "textrenderer.hpp"
 #include "setupprogram.hpp"
 
-TextRenderer::TextRenderer(const char *textureFilename)
+TextRenderer::TextRenderer(const std::shared_ptr<unsigned int> texturePtr)
 {
     glfwGetWindowSize(glfwGetCurrentContext(), &mWidth, &mHeight);
     float width(mWidth * 1.0f), height(mHeight * 1.0f);
-    mTexture = LoadTexture(!textureFilename ? "text.png" : textureFilename);
+    if(texturePtr)
+    {
+        mTexture = texturePtr;
+        mTextureCreated = false;
+    }
+    else
+    {
+        mTexture = std::shared_ptr<unsigned int>
+                (new unsigned int(LoadTexture("text.png")));
+        mTextureCreated = true;
+    }
     mProgram = SetupProgram("text.vs", "text.fs");
     mView = glm::ortho(0.0f, width * 1.0f, 0.0f, height * 1.0f, 1.0f, -1.0f);
 }
 
 TextRenderer::~TextRenderer()
 {
-    if(glIsTexture(mTexture))
-        glDeleteTextures(1, &mTexture);
+    if(mTextureCreated)
+    {
+        if(glIsTexture(*mTexture))
+            glDeleteTextures(1, &(*mTexture));
+    }
     if(glIsProgram(mProgram))
         glDeleteProgram(mProgram);
 }
@@ -31,7 +44,7 @@ void TextRenderer::DrawAll()
     if(!mTextVec.empty())
     {
         glUseProgram(mProgram);
-        glBindTexture(GL_TEXTURE_2D, mTexture);
+        glBindTexture(GL_TEXTURE_2D, *mTexture);
         for(auto & text : mTextVec)
         {
             if(text)
@@ -48,7 +61,7 @@ void TextRenderer::Draw(const std::string &text)
     if(it != mTextVec.end())
     {
         glUseProgram(mProgram);
-        glBindTexture(GL_TEXTURE_2D, mTexture);
+        glBindTexture(GL_TEXTURE_2D, *mTexture);
 
         Draw(*(*it));
         glBindTexture(GL_TEXTURE_2D, 0);

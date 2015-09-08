@@ -36,8 +36,6 @@ bool UpdateTreesAndCheckIfWon(std::shared_ptr<VisibleObject> &player,
 bool UpdatePlayerMovementAndCheckWin(std::shared_ptr<VisibleObject> &player, std::vector<Movement> &moveVec,
                                      std::vector<std::shared_ptr<VisibleObject>> &objVec, Map &map,
                                      const float deltaTime, unsigned int &score);
-std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,
-                                         std::vector<std::shared_ptr<VisibleObject>> &objVec);
 
 bool PlayGame(Map map, ResourceManager resourceManager)
 {
@@ -58,12 +56,9 @@ bool PlayGame(Map map, ResourceManager resourceManager)
     while(playing && !glfwWindowShouldClose(glfwGetCurrentContext()))
     {
         double currTime(glfwGetTime()), prevTime(currTime);
-        GetVecFullOfObjects(objectVec, map, resourceManager);
+        GetVecFullOfObjects(objectVec, map, resourceManager, aiVec);
         GetPlayerLives(objectVec, livesVec);
         textRender.AddTextHorizontalAlign(livesVec, TextRenderer::Alignment::Right, TextRenderer::Alignment::Bottom, 20.0f);
-
-        AI ai(GetPlayer(2, objectVec), GetPlayer(1, objectVec));
-        aiVec.push_back(ai);
 
         CollisionDetection collisionDetect;
         collisionDetect.AddPlayersAndEnemys(objectVec);
@@ -213,6 +208,7 @@ bool UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
                 (int)obj->GetY() == where.y && player != obj->GetPlayer())
         {
             obj->SwitchVaos();
+
             map.SetObject(where, 0);
             retValue = true;
             break;
@@ -228,12 +224,27 @@ bool UpdateTreesAndCheckIfWon(std::shared_ptr<VisibleObject> &player,
     bool finished(false);
     glm::ivec2 where((int)(player->GetX()),
                      (int)(player->GetY()));
-    if(map.GetWhichObject(where) == Object::tree)
+    Object obj(map.GetWhichObject(where));
+    if(obj == Object::tree || obj == Object::powerPill || obj == Object::specialObject)
     {
-        if(UpdateObject(where, map, player->GetPlayer(), objectVec))
+        switch(obj)
+        {
+        case Object::tree:
+            if(map.HasFinished())
+                finished = true;
             score += 10;
-        if(map.HasFinished())
-            finished = true;
+            break;
+        case Object::powerPill:
+            score += 10;
+            break;
+        case Object::specialObject:
+            score += 100;
+            break;
+        default:
+            break;
+        }
+
+        UpdateObject(where, map, player->GetPlayer(), objectVec);
     }
     return finished;
 }
@@ -255,19 +266,4 @@ bool UpdatePlayerMovementAndCheckWin(std::shared_ptr<VisibleObject> &character, 
         }
     }
     return complete;
-}
-
-std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,
-                                         std::vector<std::shared_ptr<VisibleObject> > &objVec)
-{
-    std::shared_ptr<VisibleObject> playerToRet(nullptr);
-    for(auto it(objVec.begin()); it != objVec.end(); ++it)
-    {
-        if((*it)->GetPlayer() == player)
-        {
-            playerToRet = *it;
-            break;
-        }
-    }
-    return playerToRet;
 }

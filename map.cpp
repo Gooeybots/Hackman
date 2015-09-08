@@ -5,12 +5,12 @@
 #include "visibleobject.hpp"
 #include "character.hpp"
 
-Map::Map(const char * mapsFilename):mTrees(0)
+Map::Map():mTrees(0)
 {
     mMap.fill(0);
 
     std::stringstream data;
-    if(ReadToStream(mapsFilename, data))
+    if(ReadToStream("maps.txt", data))
     {
         std::string str;
         while(data >> str)
@@ -20,6 +20,15 @@ Map::Map(const char * mapsFilename):mTrees(0)
 
         RetriveMapFromFile();
     }
+
+}
+
+Map::Map(const char * filename):mTrees(0)
+{
+    mMap.fill(0);
+    mMapFiles.push_back(filename);
+    mWhichMap = mMapFiles.begin();
+    RetriveMapFromFile();
 }
 
 bool Map::HasFinished()
@@ -71,6 +80,15 @@ bool Map::RetriveMapFromFile()
             square = item;
             if(item == 1)
                 mTrees += 1;
+            else if(item == 10 || item == 11 || item == 12 || item == 13)
+            {
+                float x(0.0f), y(0.0f), x1(0.0f), y1(0.0f);
+                data >> x >> y >> x1 >> y1;
+                mAiPatrolPositions.push_back(x);
+                mAiPatrolPositions.push_back(y);
+                mAiPatrolPositions.push_back(x1);
+                mAiPatrolPositions.push_back(y1);
+            }
         }
         return true;
     }
@@ -176,3 +194,5 @@ Object Map::GetWhichObject(const glm::ivec2 &whichSquare) const
     }
     return obj;
 }
+
+

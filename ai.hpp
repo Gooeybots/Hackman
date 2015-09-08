@@ -45,9 +45,11 @@ class AI
     };
 
     AI(std::shared_ptr<VisibleObject> player,
-       std::shared_ptr<VisibleObject> enemy):
-        mPlayer(player), mEnemy(enemy), mFirstPos(0, 29), mSecondPos(12, 24),
-        mPos(true)
+       std::shared_ptr<VisibleObject> enemy,
+       const float pos1X, const float pos1Y,
+       const float pos2X, const float pos2Y):
+        mFirstPos(pos1X, pos1Y), mSecondPos(pos2X, pos2Y),
+        mPlayer(player), mEnemy(enemy), mPos(true)
     {
         mState = State::Patrol;
         mChaseType = ChaseType::Stalk;
@@ -55,6 +57,8 @@ class AI
 
     Direction GetMove(Map &map);
     unsigned int GetPlayer();
+    glm::vec2 mFirstPos;
+    glm::vec2 mSecondPos;
 private:
     Direction FindShortestPath(std::shared_ptr<Positions> &target,
                           std::shared_ptr<Positions> &location,
@@ -100,8 +104,6 @@ private:
 
     std::shared_ptr<VisibleObject> mPlayer;
     std::shared_ptr<VisibleObject> mEnemy;
-    glm::vec2 mFirstPos;
-    glm::vec2 mSecondPos;
     State mState;
     ChaseType mChaseType;
     bool mPos;

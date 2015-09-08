@@ -10,8 +10,8 @@ class Character : public VisibleObject
 {
 public:
     Character(const float x, const float y, const float speed, const unsigned int player,
-              const unsigned int vao, const unsigned int nextVao, const unsigned int texture,
-              const unsigned int program, const unsigned int lives = 0, Direction = Direction::Right);
+              const std::shared_ptr<unsigned int> vao, const std::shared_ptr<unsigned int> nextVao, const std::shared_ptr<unsigned int> texture,
+              const std::shared_ptr<unsigned int> program, const unsigned int lives = 0, Direction = Direction::Right);
     ~Character();
 
     void Draw(const glm::mat4 &view);

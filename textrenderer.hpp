@@ -20,7 +20,7 @@ public:
         Center
     };
 
-    TextRenderer(const char * textureFilename = nullptr);
+    TextRenderer(const std::shared_ptr<unsigned int> texturePtr = nullptr);
     ~TextRenderer();
 
     void DrawAll();
@@ -101,10 +101,11 @@ private:
     void Draw(const Text &text);
     void UpdateSizeAndPosition(Text &text, const float size);
 
+    bool mTextureCreated;
     std::vector<std::shared_ptr<Text>> mTextVec;
     glm::mat4 mView;
     unsigned int mProgram;
-    unsigned int mTexture;
+    std::shared_ptr<unsigned int> mTexture;
     int mWidth;
     int mHeight;
 };

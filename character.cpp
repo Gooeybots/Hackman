@@ -8,9 +8,9 @@
 #include "character.hpp"
 
 Character::Character(const float x, const float y, const float speed,
-                     const unsigned int player, const unsigned int vao,
-                     const unsigned int nextVao, const unsigned int texture,
-                     const unsigned int program, const unsigned int lives,
+                     const unsigned int player, const std::shared_ptr<unsigned int> vao,
+                     const std::shared_ptr<unsigned int> nextVao, const std::shared_ptr<unsigned int> texture,
+                     const std::shared_ptr<unsigned int> program, const unsigned int lives,
                      const Direction dir):
     VisibleObject(x, y, vao, nextVao, texture, program),
     prevDir(dir), mPlayer(player), mLives(lives), currTime(0.0),
@@ -26,12 +26,12 @@ glm::mat4 Character::GetModel()
 void Character::Draw(const glm::mat4 &view)
 {
     UpdateModel(prevDir);
-    glUseProgram(mProgram);
+    glUseProgram(*mProgram);
 
-    glBindVertexArray(mVao);
-    glBindTexture(GL_TEXTURE_2D, mTexture);
+    glBindVertexArray(*mVao);
+    glBindTexture(GL_TEXTURE_2D, *mTexture);
 
-    glUniformMatrix4fv(glGetUniformLocation(mProgram, "modelView"),
+    glUniformMatrix4fv(glGetUniformLocation(*mProgram, "modelView"),
                        1, GL_FALSE, glm::value_ptr(view * mModel));
 
     glDrawArrays(GL_TRIANGLE_FAN, 0, 4);

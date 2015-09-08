@@ -27,7 +27,8 @@ enum Object
 class Map
 {
 public:
-    Map(const char * mapsFilename = "maps.txt");
+    Map();
+    Map(const char * filename);
 
 // Returns false if last map was the last level
     bool HasFinished();
@@ -38,6 +39,8 @@ public:
     Object GetWhichObject(const glm::ivec2 &whichSquare) const;
     glm::ivec2 FindObject(const Object obj);
     std::array<unsigned int, 840> GetMap();
+
+    std::vector<float> mAiPatrolPositions;
 private:
 // Returns false if file couldn't be read
     bool RetriveMapFromFile();

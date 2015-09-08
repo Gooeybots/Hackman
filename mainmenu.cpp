@@ -5,6 +5,7 @@
 #include "setupgame.hpp"
 #include "mainmenu.hpp"
 #include "menuupdate.hpp"
+#include "mapeditor.hpp"
 #include "highscoremenu.hpp"
 
 bool MenuOption(unsigned int menuPos);
@@ -33,7 +34,8 @@ unsigned int DisplayMenu()
     TextRenderer textRenderer;
     std::vector<std::string> textVec;
     textVec.push_back("Start");    textVec.push_back("Options");
-    textVec.push_back("Highscores");    textVec.push_back("Quit");
+    textVec.push_back("Map Editor");    textVec.push_back("Highscores");
+    textVec.push_back("Quit");
     textRenderer.AddTextVerticalAlign(textVec, TextRenderer::Alignment::Center,
                                       TextRenderer::Alignment::Center, 35.0f,
                                       glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
@@ -79,6 +81,11 @@ bool MenuOption(unsigned int menuPos)
         DisplayHighscores();
     }
     else if(menuPos == 2)
+    {
+            playing = true;
+            MakeMap();
+    }
+    else if(menuPos == 3)
     {
         playing = true;
         DisplayHighscores();
