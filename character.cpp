@@ -8,13 +8,13 @@
 #include "character.hpp"
 
 Character::Character(const float x, const float y, const float speed,
-                     const unsigned int player, const std::shared_ptr<unsigned int> vao,
-                     const std::shared_ptr<unsigned int> nextVao, const std::shared_ptr<unsigned int> texture,
-                     const std::shared_ptr<unsigned int> program, const unsigned int lives,
+                     const unsigned int player, const std::shared_ptr<unsigned int> &vao,
+                     const std::shared_ptr<unsigned int> &nextVao, const std::shared_ptr<unsigned int> &texture,
+                     const std::shared_ptr<unsigned int> &program, const std::shared_ptr<unsigned int> &deathVao,
                      const Direction dir):
     VisibleObject(x, y, vao, nextVao, texture, program),
-    prevDir(dir), mPlayer(player), mLives(lives), currTime(0.0),
-    prevTime(0.0f), mSpeed(speed), mHomeSquare(x,y), mModel(1.0f){}
+    prevDir(dir), mPlayer(player), currTime(0.0), prevTime(0.0f),
+    mSpeed(speed), mHomeSquare(x,y), mModel(1.0f), mDeathVao(deathVao), mActive(true){}
 
 Character::~Character(){}
 
@@ -41,12 +41,6 @@ void Character::Draw(const glm::mat4 &view)
     glUseProgram(0);
 }
 
-void Character::TakeLife()
-{
-    if(mLives > 0)
-        mLives -= 1;
-}
-
 void Character::ResetToOriginalSquare()
 {
     mXOffset = mHomeSquare.x;
@@ -56,14 +50,18 @@ void Character::ResetToOriginalSquare()
 
 bool Character::Move(const Direction dir, const float dt, const Map &map)
 {
-    // Update animation
-    currTime = glfwGetTime();
-    if(currTime - prevTime >= 0.2) // should probably change from magic no
-    {
-        SwitchVaos();
-        prevTime = currTime;
-    }
+    bool moved(false);
 
+    if(mActive)
+    {
+        UpdateAnimation();
+        moved = GetMovement(dir, dt, map);
+    }
+    return moved;
+}
+
+bool Character::GetMovement(const Direction dir, const float dt, const Map &map)
+{
     bool moved(false);
     float halfway(0.5f);
     float distanceToMove(mSpeed * dt);
@@ -75,8 +73,8 @@ bool Character::Move(const Direction dir, const float dt, const Map &map)
     }
     else if(!CanMoveWithoutChangingSquare(glm::vec2(mXOffset, mYOffset),
                                           distanceToMove, dir))
-    { 
-        if(map.CanMove(dir, glm::ivec2((int)mXOffset, (int)mYOffset)))
+    {
+        if(map.CanMove(dir, glm::ivec2((int)mXOffset, (int)mYOffset), mActive))
         {
             lastFullMove = dir;
             prevDir = dir;
@@ -112,10 +110,10 @@ bool Character::Move(const Direction dir, const float dt, const Map &map)
     }
     else
     {
-        if(!map.CanMove(dir, glm::ivec2((int)mXOffset, (int)mYOffset)))
+        if(!map.CanMove(dir, glm::ivec2((int)mXOffset, (int)mYOffset), mActive))
         {
             MoveToCenter(dir, distanceToMove);
-// To keep Geoff moving if user presses direction which he cannot move
+            // To keep Geoff moving if user presses direction which he cannot move
             if(dir != prevDir)
                 moved = Move(prevDir, dt, map);
             else // if it is moving stop animation
@@ -143,6 +141,18 @@ bool Character::Move(const Direction dir, const float dt, const Map &map)
     return moved;
 }
 
+void Character::UpdateAnimation()
+{
+    if(currTime < prevTime)
+        currTime = prevTime = glfwGetTime(); // for when the power pill is taken
+    currTime = glfwGetTime();
+    if(currTime - prevTime >= 0.2) // should probably change from magic no
+    {
+        SwitchVaos();
+        prevTime = currTime;
+    }
+}
+
 Direction Character::GetPrevDirection()
 {
     return lastFullMove;
@@ -151,11 +161,6 @@ Direction Character::GetPrevDirection()
 unsigned int Character::GetPlayer()
 {
     return mPlayer;
-}
-
-unsigned int Character::GetLives()
-{
-    return mLives;
 }
 
 bool Character::CanMoveWithoutChangingSquare(const glm::vec2 &where,
@@ -263,4 +268,17 @@ void Character::UpdateModel(const Direction dir)
         mModel = glm::rotate(mModel, -1.57079f,
                               glm::vec3(0.0f, 0.0f, 1.0f));
     }
+}
+
+void Character::SwitchDeathVao()
+{
+    std::shared_ptr<unsigned int> next(mVao);
+    mVao = mDeathVao;
+    mDeathVao = next;
+    mActive = !mActive;
+}
+
+bool Character::GetActive()
+{
+    return mActive;
 }

@@ -6,12 +6,21 @@
 
 class VisibleObject;
 
+struct DeadPlayers
+{
+    std::shared_ptr<VisibleObject> player;
+    double timeEnemyShouldLive;
+};
+
+class VisibleObject;
+
 class CollisionDetection
 {
 public:
     CollisionDetection();
 /* returns true if collision happens between any player and enemy */
-    bool DetectCollisions();
+    bool DetectCollisions(unsigned int &lives, unsigned int &score,
+                          std::vector<DeadPlayers> &deadVec);
 
 /* These will add to the correct vector if they are not already present */
     void AddEnemy(std::shared_ptr<VisibleObject> &enemy);

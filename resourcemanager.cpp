@@ -32,6 +32,17 @@ std::shared_ptr<unsigned int> ResourceManager::GetVao(const std::string &name)
 std::shared_ptr<unsigned int> ResourceManager::GetProgram(const std::string &vs, const std::string &fs)
 {
     std::string name(vs + " " + fs);
+    return GetData(name);
+}
+
+std::shared_ptr<unsigned int> ResourceManager::GetTexture(const std::string &filename)
+{
+    return GetData(filename);
+}
+
+std::shared_ptr<unsigned int> ResourceManager::GetOrCreateProgram(const std::string &vs, const std::string &fs)
+{
+    std::string name(vs + " " + fs);
     std::shared_ptr<unsigned int> program(GetData(name));
     if(program == nullptr)
     {
@@ -42,7 +53,7 @@ std::shared_ptr<unsigned int> ResourceManager::GetProgram(const std::string &vs,
     return program;
 }
 
-std::shared_ptr<unsigned int> ResourceManager::GetTexture(const std::string &filename)
+std::shared_ptr<unsigned int> ResourceManager::GetOrCreateTexture(const std::string &filename)
 {
     std::shared_ptr<unsigned int> texture(GetData(filename));
     if(texture == nullptr)
@@ -71,16 +82,28 @@ std::shared_ptr<unsigned int> ResourceManager::CreateTexture(const std::string &
     return texture;
 }
 
-void ResourceManager::AddVao(const std::string &name, const std::shared_ptr<unsigned int> vao)
+void ResourceManager::AddTexture(const std::string &filename, const std::shared_ptr<unsigned int> &texture)
+{
+    AddToMap(filename, texture);
+}
+
+void ResourceManager::AddProgram(const std::string &vs, const std::string &fs, const std::shared_ptr<unsigned int> &program)
+{
+    AddToMap(vs + " " + fs, program);
+}
+
+void ResourceManager::AddVao(const std::string &name, const std::shared_ptr<unsigned int> &vao)
 {
     AddToMap(name, vao);
 }
 
 std::shared_ptr<unsigned int> ResourceManager::GetData(const std::string &name)
 {
-    auto object(mMap.find(name));
+    auto object = mMap.find(name);
+
     if(object != mMap.end())
         return object->second;
+
     return nullptr;
 }
 

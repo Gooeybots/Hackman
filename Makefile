@@ -67,7 +67,9 @@ SOURCES       = window.cpp \
 		highscoremenu.cpp \
 		mapeditor.cpp \
 		createbuffer.cpp \
-		writedata.cpp 
+		writedata.cpp \
+		enemy.cpp \
+		difficultyselect.cpp 
 OBJECTS       = window.o \
 		main.o \
 		setupgame.o \
@@ -90,10 +92,12 @@ OBJECTS       = window.o \
 		highscoremenu.o \
 		mapeditor.o \
 		createbuffer.o \
-		writedata.o
-DIST          = highscores.txt \
-		colouredsquare.vs \
+		writedata.o \
+		enemy.o \
+		difficultyselect.o
+DIST          = colouredsquare.vs \
 		colouredsquare.fs \
+		highscores.txt \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/features/spec_pre.prf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/shell-unix.conf \
 		/usr/lib/x86_64-linux-gnu/qt5/mkspecs/common/unix.conf \
@@ -169,7 +173,9 @@ DIST          = highscores.txt \
 		highscoremenu.cpp \
 		mapeditor.cpp \
 		createbuffer.cpp \
-		writedata.cpp
+		writedata.cpp \
+		enemy.cpp \
+		difficultyselect.cpp
 QMAKE_TARGET  = Hackman
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = Hackman
@@ -322,7 +328,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/Hackman1.0.0 || mkdir -p .tmp/Hackman1.0.0
-	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp readtostream.hpp map.hpp visibleobject.hpp character.hpp setupobjects.hpp playgame.hpp ai.hpp directionenum.hpp collisiondetection.hpp textrenderer.hpp mainmenu.hpp pausemenu.hpp menuupdate.hpp highscoremenu.hpp mapeditor.hpp createbuffer.hpp writedata.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp readtostream.cpp map.cpp character.cpp visibleobject.cpp setupobjects.cpp playgame.cpp ai.cpp collisiondetection.cpp textrenderer.cpp mainmenu.cpp pausemenu.cpp menuupdate.cpp highscoremenu.cpp mapeditor.cpp createbuffer.cpp writedata.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
+	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp readtostream.hpp map.hpp visibleobject.hpp character.hpp setupobjects.hpp playgame.hpp ai.hpp directionenum.hpp collisiondetection.hpp textrenderer.hpp mainmenu.hpp pausemenu.hpp menuupdate.hpp highscoremenu.hpp mapeditor.hpp createbuffer.hpp writedata.hpp enemy.hpp difficultyselect.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp readtostream.cpp map.cpp character.cpp visibleobject.cpp setupobjects.cpp playgame.cpp ai.cpp collisiondetection.cpp textrenderer.cpp mainmenu.cpp pausemenu.cpp menuupdate.cpp highscoremenu.cpp mapeditor.cpp createbuffer.cpp writedata.cpp enemy.cpp difficultyselect.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
 
 
 clean:compiler_clean 
@@ -366,7 +372,8 @@ main.o: main.cpp window.hpp \
 		mainmenu.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
-setupgame.o: setupgame.cpp setupgame.hpp \
+setupgame.o: setupgame.cpp loadtexture.hpp \
+		setupgame.hpp \
 		resourcemanager.hpp \
 		readtostream.hpp \
 		map.hpp \
@@ -417,7 +424,10 @@ setupobjects.o: setupobjects.cpp setupobjects.hpp \
 		map.hpp \
 		visibleobject.hpp \
 		directionenum.hpp \
-		character.hpp
+		character.hpp \
+		ai.hpp \
+		mapeditor.hpp \
+		enemy.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o setupobjects.o setupobjects.cpp
 
 playgame.o: playgame.cpp pausemenu.hpp \
@@ -430,7 +440,8 @@ playgame.o: playgame.cpp pausemenu.hpp \
 		character.hpp \
 		ai.hpp \
 		collisiondetection.hpp \
-		textrenderer.hpp
+		textrenderer.hpp \
+		highscoremenu.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o playgame.o playgame.cpp
 
 ai.o: ai.cpp visibleobject.hpp \
@@ -450,27 +461,31 @@ textrenderer.o: textrenderer.cpp loadtexture.hpp \
 		setupprogram.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o textrenderer.o textrenderer.cpp
 
-mainmenu.o: mainmenu.cpp textrenderer.hpp \
-		setupgame.hpp \
+mainmenu.o: mainmenu.cpp resourcemanager.hpp \
+		textrenderer.hpp \
 		mainmenu.hpp \
 		menuupdate.hpp \
 		mapeditor.hpp \
-		highscoremenu.hpp
+		highscoremenu.hpp \
+		difficultyselect.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mainmenu.o mainmenu.cpp
 
 pausemenu.o: pausemenu.cpp textrenderer.hpp \
 		setupgame.hpp \
 		pausemenu.hpp \
-		menuupdate.hpp
+		menuupdate.hpp \
+		resourcemanager.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o pausemenu.o pausemenu.cpp
 
 menuupdate.o: menuupdate.cpp textrenderer.hpp \
 		menuupdate.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o menuupdate.o menuupdate.cpp
 
-highscoremenu.o: highscoremenu.cpp readtostream.hpp \
+highscoremenu.o: highscoremenu.cpp resourcemanager.hpp \
+		readtostream.hpp \
 		textrenderer.hpp \
-		highscoremenu.hpp
+		highscoremenu.hpp \
+		writedata.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o highscoremenu.o highscoremenu.cpp
 
 mapeditor.o: mapeditor.cpp textrenderer.hpp \
@@ -481,14 +496,33 @@ mapeditor.o: mapeditor.cpp textrenderer.hpp \
 		createbuffer.hpp \
 		resourcemanager.hpp \
 		menuupdate.hpp \
-		writedata.hpp
+		writedata.hpp \
+		ai.hpp \
+		setupobjects.hpp \
+		character.hpp \
+		setupgame.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o mapeditor.o mapeditor.cpp
 
 createbuffer.o: createbuffer.cpp createbuffer.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o createbuffer.o createbuffer.cpp
 
-writedata.o: writedata.cpp writedata.hpp
+writedata.o: writedata.cpp writedata.hpp \
+		highscoremenu.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o writedata.o writedata.cpp
+
+enemy.o: enemy.cpp enemy.hpp \
+		character.hpp \
+		visibleobject.hpp \
+		directionenum.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o enemy.o enemy.cpp
+
+difficultyselect.o: difficultyselect.cpp resourcemanager.hpp \
+		textrenderer.hpp \
+		difficultyselect.hpp \
+		setupgame.hpp \
+		menuupdate.hpp \
+		highscoremenu.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o difficultyselect.o difficultyselect.cpp
 
 ####### Install
 

@@ -33,7 +33,6 @@ class AI
     enum State
     {
         Chase,
-        Retreat,
         Patrol
     };
     enum ChaseType
@@ -44,19 +43,19 @@ class AI
         Stalk
     };
 
-    AI(std::shared_ptr<VisibleObject> player,
-       std::shared_ptr<VisibleObject> enemy,
+    AI(const std::shared_ptr<VisibleObject> &player,
+       const std::shared_ptr<VisibleObject> &enemy,
        const float pos1X, const float pos1Y,
-       const float pos2X, const float pos2Y):
+       const float pos2X, const float pos2Y,
+       const ChaseType chase):
         mFirstPos(pos1X, pos1Y), mSecondPos(pos2X, pos2Y),
-        mPlayer(player), mEnemy(enemy), mPos(true)
-    {
-        mState = State::Patrol;
-        mChaseType = ChaseType::Stalk;
-    }
+        mPlayer(player), mEnemy(enemy), mState(State::Patrol),
+        mChaseType(chase), mPos(true), mReleased(true){}
 
     Direction GetMove(Map &map);
     unsigned int GetPlayer();
+    void SwitchStates();
+
     glm::vec2 mFirstPos;
     glm::vec2 mSecondPos;
 private:
@@ -107,6 +106,7 @@ private:
     State mState;
     ChaseType mChaseType;
     bool mPos;
+    bool mReleased;
 };
 
 #endif // AI_HPP

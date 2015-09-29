@@ -20,7 +20,7 @@ public:
         Center
     };
 
-    TextRenderer(const std::shared_ptr<unsigned int> texturePtr = nullptr);
+    TextRenderer(const std::shared_ptr<unsigned int> &texturePtr = nullptr);
     ~TextRenderer();
 
     void DrawAll();

@@ -9,7 +9,7 @@
 #include "textrenderer.hpp"
 #include "setupprogram.hpp"
 
-TextRenderer::TextRenderer(const std::shared_ptr<unsigned int> texturePtr)
+TextRenderer::TextRenderer(const std::shared_ptr<unsigned int> &texturePtr)
 {
     glfwGetWindowSize(glfwGetCurrentContext(), &mWidth, &mHeight);
     float width(mWidth * 1.0f), height(mHeight * 1.0f);
@@ -469,13 +469,19 @@ void TextRenderer::Text::AddTexCoords(const std::string &text, std::vector<glm::
 
         glm::vec2 positionSmall(positionX * 0.0625, positionY * 0.0625);
         glm::vec2 positionBig(positionSmall.x + 0.0625, positionSmall.y + 0.0625);
-
+/*
         posVec.push_back(glm::vec2(positionSmall.x, positionBig.y));
         posVec.push_back(glm::vec2(positionBig.x,   positionBig.y));
         posVec.push_back(glm::vec2(positionBig.x,   positionSmall.y));
         posVec.push_back(glm::vec2(positionSmall.x, positionBig.y));
         posVec.push_back(glm::vec2(positionBig.x,   positionSmall.y));
+        posVec.push_back(glm::vec2(positionSmall.x, positionSmall.y));*/
         posVec.push_back(glm::vec2(positionSmall.x, positionSmall.y));
+        posVec.push_back(glm::vec2(positionBig.x,   positionSmall.y));
+        posVec.push_back(glm::vec2(positionBig.x,   positionBig.y));
+        posVec.push_back(glm::vec2(positionSmall.x, positionSmall.y));
+        posVec.push_back(glm::vec2(positionBig.x,   positionBig.y));
+        posVec.push_back(glm::vec2(positionSmall.x, positionBig.y));
     }
 }
 
@@ -484,195 +490,195 @@ void TextRenderer::Text::GetTexCoordLocation(const char &letter, float &position
     switch(letter)
     {
     case ' ':
-        positionX = 0.0f; positionY = 8.0f; break;
+        positionX = 0.0f; positionY = 7.0f; break;
     case '!':
-        positionX = 1.0f; positionY = 8.0f; break;
+        positionX = 1.0f; positionY = 7.0f; break;
     case '"':
-        positionX = 2.0f; positionY = 8.0f; break;
+        positionX = 2.0f; positionY = 7.0f; break;
     case '#':
-        positionX = 3.0f; positionY = 8.0f; break;
+        positionX = 3.0f; positionY = 7.0f; break;
     case '$':
-        positionX = 4.0f; positionY = 8.0f; break;
+        positionX = 4.0f; positionY = 7.0f; break;
     case '%':
-        positionX = 5.0f; positionY = 8.0f; break;
+        positionX = 5.0f; positionY = 7.0f; break;
     case '&':
-        positionX = 6.0f; positionY = 8.0f; break;
+        positionX = 6.0f; positionY = 7.0f; break;
     case '\'':
-        positionX = 7.0f; positionY = 8.0f; break;
+        positionX = 7.0f; positionY = 7.0f; break;
     case '(':
-        positionX = 8.0f; positionY = 8.0f; break;
+        positionX = 8.0f; positionY = 7.0f; break;
     case ')':
-        positionX = 9.0f; positionY = 8.0f; break;
+        positionX = 9.0f; positionY = 7.0f; break;
     case '*':
-        positionX = 10.0f; positionY = 8.0f; break;
+        positionX = 10.0f; positionY = 7.0f; break;
     case '+':
-        positionX = 11.0f; positionY = 8.0f; break;
+        positionX = 11.0f; positionY = 7.0f; break;
     case ',':
-        positionX = 12.0f; positionY = 8.0f; break;
+        positionX = 12.0f; positionY = 7.0f; break;
     case '-':
-        positionX = 13.0f; positionY = 8.0f; break;
+        positionX = 13.0f; positionY = 7.0f; break;
     case '.':
-        positionX = 14.0f; positionY = 8.0f; break;
+        positionX = 14.0f; positionY = 7.0f; break;
     case '/':
-        positionX = 15.0f; positionY = 8.0f; break;
+        positionX = 15.0f; positionY = 7.0f; break;
     case '0':
-        positionX = 0.0f; positionY = 9.0f; break;
+        positionX = 0.0f; positionY = 6.0f; break;
     case '1':
-        positionX = 1.0f; positionY = 9.0f; break;
+        positionX = 1.0f; positionY = 6.0f; break;
     case '2':
-        positionX = 2.0f; positionY = 9.0f; break;
+        positionX = 2.0f; positionY = 6.0f; break;
     case '3':
-        positionX = 3.0f; positionY = 9.0f; break;
+        positionX = 3.0f; positionY = 6.0f; break;
     case '4':
-        positionX = 4.0f; positionY = 9.0f; break;
+        positionX = 4.0f; positionY = 6.0f; break;
     case '5':
-        positionX = 5.0f; positionY = 9.0f; break;
+        positionX = 5.0f; positionY = 6.0f; break;
     case '6':
-        positionX = 6.0f; positionY = 9.0f; break;
+        positionX = 6.0f; positionY = 6.0f; break;
     case '7':
-        positionX = 7.0f; positionY = 9.0f; break;
+        positionX = 7.0f; positionY = 6.0f; break;
     case '8':
-        positionX = 8.0f; positionY = 9.0f; break;
+        positionX = 8.0f; positionY = 6.0f; break;
     case '9':
-        positionX = 9.0f; positionY = 9.0f; break;
+        positionX = 9.0f; positionY = 6.0f; break;
     case ':':
-        positionX = 10.0f; positionY = 9.0f; break;
+        positionX = 10.0f; positionY = 6.0f; break;
     case ';':
-        positionX = 11.0f; positionY = 9.0f; break;
+        positionX = 11.0f; positionY = 6.0f; break;
     case '<':
-        positionX = 12.0f; positionY = 9.0f; break;
+        positionX = 12.0f; positionY = 6.0f; break;
     case '=':
-        positionX = 13.0f; positionY = 9.0f; break;
+        positionX = 13.0f; positionY = 6.0f; break;
     case '>':
-        positionX = 14.0f; positionY = 9.0f; break;
+        positionX = 14.0f; positionY = 6.0f; break;
     case '?':
-        positionX = 15.0f; positionY = 9.0f; break;
+        positionX = 15.0f; positionY = 6.0f; break;
     case '@':
-        positionX = 0.0f; positionY = 10.0f; break;
+        positionX = 0.0f; positionY = 5.0f; break;
     case 'A':
-        positionX = 1.0f; positionY = 10.0f; break;
+        positionX = 1.0f; positionY = 5.0f; break;
     case 'B':
-        positionX = 2.0f; positionY = 10.0f; break;
+        positionX = 2.0f; positionY = 5.0f; break;
     case 'C':
-        positionX = 3.0f; positionY = 10.0f; break;
+        positionX = 3.0f; positionY = 5.0f; break;
     case 'D':
-        positionX = 4.0f; positionY = 10.0f; break;
+        positionX = 4.0f; positionY = 5.0f; break;
     case 'E':
-        positionX = 5.0f; positionY = 10.0f; break;
+        positionX = 5.0f; positionY = 5.0f; break;
     case 'F':
-        positionX = 6.0f; positionY = 10.0f; break;
+        positionX = 6.0f; positionY = 5.0f; break;
     case 'G':
-        positionX = 7.0f; positionY = 10.0f; break;
+        positionX = 7.0f; positionY = 5.0f; break;
     case 'H':
-        positionX = 8.0f; positionY = 10.0f; break;
+        positionX = 8.0f; positionY = 5.0f; break;
     case 'I':
-        positionX = 9.0f; positionY = 10.0f; break;
+        positionX = 9.0f; positionY = 5.0f; break;
     case 'J':
-        positionX = 10.0f; positionY = 10.0f; break;
+        positionX = 10.0f; positionY = 5.0f; break;
     case 'K':
-        positionX = 11.0f; positionY = 10.0f; break;
+        positionX = 11.0f; positionY = 5.0f; break;
     case 'L':
-        positionX = 12.0f; positionY = 10.0f; break;
+        positionX = 12.0f; positionY = 5.0f; break;
     case 'M':
-        positionX = 13.0f; positionY = 10.0f; break;
+        positionX = 13.0f; positionY = 5.0f; break;
     case 'N':
-        positionX = 14.0f; positionY = 10.0f; break;
+        positionX = 14.0f; positionY = 5.0f; break;
     case 'O':
-        positionX = 15.0f; positionY = 10.0f; break;
+        positionX = 15.0f; positionY = 5.0f; break;
     case 'P':
-        positionX = 0.0f; positionY = 11.0f; break;
+        positionX = 0.0f; positionY = 4.0f; break;
     case 'Q':
-        positionX = 1.0f; positionY = 11.0f; break;
+        positionX = 1.0f; positionY = 4.0f; break;
     case 'R':
-        positionX = 2.0f; positionY = 11.0f; break;
+        positionX = 2.0f; positionY = 4.0f; break;
     case 'S':
-        positionX = 3.0f; positionY = 11.0f; break;
+        positionX = 3.0f; positionY = 4.0f; break;
     case 'T':
-        positionX = 4.0f; positionY = 11.0f; break;
+        positionX = 4.0f; positionY = 4.0f; break;
     case 'U':
-        positionX = 5.0f; positionY = 11.0f; break;
+        positionX = 5.0f; positionY = 4.0f; break;
     case 'V':
-        positionX = 6.0f; positionY = 11.0f; break;
+        positionX = 6.0f; positionY = 4.0f; break;
     case 'W':
-        positionX = 7.0f; positionY = 11.0f; break;
+        positionX = 7.0f; positionY = 4.0f; break;
     case 'X':
-        positionX = 8.0f; positionY = 11.0f; break;
+        positionX = 8.0f; positionY = 4.0f; break;
     case 'Y':
-        positionX = 9.0f; positionY = 11.0f; break;
+        positionX = 9.0f; positionY = 4.0f; break;
     case 'Z':
-        positionX = 10.0f; positionY = 11.0f; break;
+        positionX = 10.0f; positionY = 4.0f; break;
     case '[':
-        positionX = 11.0f; positionY = 11.0f; break;
+        positionX = 11.0f; positionY = 4.0f; break;
     case '\\':
-        positionX = 12.0f; positionY = 11.0f; break;
+        positionX = 12.0f; positionY = 4.0f; break;
     case ']':
-        positionX = 13.0f; positionY = 11.0f; break;
+        positionX = 13.0f; positionY = 4.0f; break;
     case '^':
-        positionX = 14.0f; positionY = 11.0f; break;
+        positionX = 14.0f; positionY = 4.0f; break;
     case '_':
-        positionX = 15.0f; positionY = 11.0f; break;
+        positionX = 15.0f; positionY = 4.0f; break;
     case '`':
-        positionX = 0.0f; positionY = 12.0f; break;
+        positionX = 0.0f; positionY = 3.0f; break;
     case 'a':
-        positionX = 1.0f; positionY = 12.0f; break;
+        positionX = 1.0f; positionY = 3.0f; break;
     case 'b':
-        positionX = 2.0f; positionY = 12.0f; break;
+        positionX = 2.0f; positionY = 3.0f; break;
     case 'c':
-        positionX = 3.0f; positionY = 12.0f; break;
+        positionX = 3.0f; positionY = 3.0f; break;
     case 'd':
-        positionX = 4.0f; positionY = 12.0f; break;
+        positionX = 4.0f; positionY = 3.0f; break;
     case 'e':
-        positionX = 5.0f; positionY = 12.0f; break;
+        positionX = 5.0f; positionY = 3.0f; break;
     case 'f':
-        positionX = 6.0f; positionY = 12.0f; break;
+        positionX = 6.0f; positionY = 3.0f; break;
     case 'g':
-        positionX = 7.0f; positionY = 12.0f; break;
+        positionX = 7.0f; positionY = 3.0f; break;
     case 'h':
-        positionX = 8.0f; positionY = 12.0f; break;
+        positionX = 8.0f; positionY = 3.0f; break;
     case 'i':
-        positionX = 9.0f; positionY = 12.0f; break;
+        positionX = 9.0f; positionY = 3.0f; break;
     case 'j':
-        positionX = 10.0f; positionY = 12.0f; break;
+        positionX = 10.0f; positionY = 3.0f; break;
     case 'k':
-        positionX = 11.0f; positionY = 12.0f; break;
+        positionX = 11.0f; positionY = 3.0f; break;
     case 'l':
-        positionX = 12.0f; positionY = 12.0f; break;
+        positionX = 12.0f; positionY = 3.0f; break;
     case 'm':
-        positionX = 13.0f; positionY = 12.0f; break;
+        positionX = 13.0f; positionY = 3.0f; break;
     case 'n':
-        positionX = 14.0f; positionY = 12.0f; break;
+        positionX = 14.0f; positionY = 3.0f; break;
     case 'o':
-        positionX = 15.0f; positionY = 12.0f; break;
+        positionX = 15.0f; positionY = 3.0f; break;
     case 'p':
-        positionX = 0.0f; positionY = 13.0f; break;
+        positionX = 0.0f; positionY = 2.0f; break;
     case 'q':
-        positionX = 1.0f; positionY = 13.0f; break;
+        positionX = 1.0f; positionY = 2.0f; break;
     case 'r':
-        positionX = 2.0f; positionY = 13.0f; break;
+        positionX = 2.0f; positionY = 2.0f; break;
     case 's':
-        positionX = 3.0f; positionY = 13.0f; break;
+        positionX = 3.0f; positionY = 2.0f; break;
     case 't':
-        positionX = 4.0f; positionY = 13.0f; break;
+        positionX = 4.0f; positionY = 2.0f; break;
     case 'u':
-        positionX = 5.0f; positionY = 13.0f; break;
+        positionX = 5.0f; positionY = 2.0f; break;
     case 'v':
-        positionX = 6.0f; positionY = 13.0f; break;
+        positionX = 6.0f; positionY = 2.0f; break;
     case 'w':
-        positionX = 7.0f; positionY = 13.0f; break;
+        positionX = 7.0f; positionY = 2.0f; break;
     case 'x':
-        positionX = 8.0f; positionY = 13.0f; break;
+        positionX = 8.0f; positionY = 2.0f; break;
     case 'y':
-        positionX = 9.0f; positionY = 13.0f; break;
+        positionX = 9.0f; positionY = 2.0f; break;
     case 'z':
-        positionX = 10.0f; positionY = 13.0f; break;
+        positionX = 10.0f; positionY = 2.0f; break;
     case '{':
-        positionX = 11.0f; positionY = 13.0f; break;
+        positionX = 11.0f; positionY = 2.0f; break;
     case '|':
-        positionX = 12.0f; positionY = 13.0f; break;
+        positionX = 12.0f; positionY = 2.0f; break;
     case '}':
-        positionX = 13.0f; positionY = 13.0f; break;
+        positionX = 13.0f; positionY = 2.0f; break;
     case '~':
-        positionX = 14.0f; positionY = 13.0f; break;
+        positionX = 14.0f; positionY = 2.0f; break;
     default:
         positionX = 0.0f; positionY = 0.0f; break;
     }

@@ -1,1 +1,3 @@
-map.txt
+map3.txt
+map0.txt
+map1.txt

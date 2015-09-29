@@ -33,9 +33,11 @@ public:
 // Returns false if last map was the last level
     bool HasFinished();
     bool LoadNextMap();
-    bool CanMove(const Direction dir, const glm::ivec2 &where) const;
+    bool CanMove(const Direction dir, const glm::ivec2 &where, const bool active = false) const;
+    bool UpdateSpecialObj(const glm::ivec2 &whichSquare);
+    void HideSpecialObj();
 // sets object
-    void SetObject(const glm::ivec2 &whichSquare, const unsigned int player);
+    void SetObject(const glm::ivec2 &whichSquare);
     Object GetWhichObject(const glm::ivec2 &whichSquare) const;
     glm::ivec2 FindObject(const Object obj);
     std::array<unsigned int, 840> GetMap();
@@ -46,12 +48,12 @@ private:
     bool RetriveMapFromFile();
     bool CanTravelDirection(const unsigned int x, const unsigned int y,
                             const Direction dir) const;
-    bool CanPassThroughObject(const Object obj) const;
+    bool CanPassThroughObject(const Object obj, const bool active) const;
 
     unsigned int mTrees;
     std::array<unsigned int, 840> mMap;
-    std::vector<const char *> mMapFiles;
-    std::vector<const char *>::iterator mWhichMap;
+    std::vector<std::string> mMapFiles;
+    std::vector<std::string>::iterator mWhichMap;
 };
 
 #endif // MAP_HPP

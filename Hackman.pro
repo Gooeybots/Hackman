@@ -30,7 +30,9 @@ HEADERS += \
     highscoremenu.hpp \
     mapeditor.hpp \
     createbuffer.hpp \
-    writedata.hpp
+    writedata.hpp \
+    enemy.hpp \
+    difficultyselect.hpp
 
 SOURCES += \
     window.cpp \
@@ -55,7 +57,9 @@ SOURCES += \
     highscoremenu.cpp \
     mapeditor.cpp \
     createbuffer.cpp \
-    writedata.cpp
+    writedata.cpp \
+    enemy.cpp \
+    difficultyselect.cpp
 
 OTHER_FILES += \
     textured.vs \
@@ -67,6 +71,6 @@ OTHER_FILES += \
     text.fs
 
 DISTFILES += \
-    highscores.txt \
     colouredsquare.vs \
-    colouredsquare.fs
+    colouredsquare.fs \
+    highscores.txt

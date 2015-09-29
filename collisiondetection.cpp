@@ -1,10 +1,12 @@
+#include <GLFW/glfw3.h>
 #include "collisiondetection.hpp"
 #include "visibleobject.hpp"
 #include "textrenderer.hpp"
 
 CollisionDetection::CollisionDetection(){}
 
-bool CollisionDetection::DetectCollisions()
+bool CollisionDetection::DetectCollisions(unsigned int &lives, unsigned int &score,
+                                          std::vector<DeadPlayers> &deadPlayVec)
 {
     bool collision(false);
     for(auto player(mPlayers.begin()); player != mPlayers.end(); ++player)
@@ -15,9 +17,29 @@ bool CollisionDetection::DetectCollisions()
             int enemyX((*enemy)->GetX()), enemyY((*enemy)->GetY());
             if(enemyX == x && enemyY == y)
             {
-                collision = true;
-                (*player)->TakeLife();
-                (*player)->ResetToOriginalSquare();
+                if((*enemy)->GetCanDie() && (*enemy)->GetActive() &&
+                        (*player)->GetActive())
+                {
+                    (*enemy)->SwitchDeathVao();
+                    score += 1000;
+                    DeadPlayers deadPlayer;
+                    deadPlayer.player = *enemy;
+                    deadPlayer.timeEnemyShouldLive = glfwGetTime() + 5.0f;
+                    deadPlayVec.push_back(deadPlayer);
+                }
+                else
+                {
+                    if((*enemy)->GetActive() && (*player)->GetActive())
+                    {
+                        (*player)->SwitchDeathVao();
+                        DeadPlayers deadPlayer;
+                        deadPlayer.player = *player;
+                        deadPlayer.timeEnemyShouldLive = glfwGetTime() + 5.0f;
+                        deadPlayVec.push_back(deadPlayer);
+                        lives -= 1;
+                        collision = true;
+                    }
+                }
             }
         }
     }

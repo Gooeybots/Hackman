@@ -5,27 +5,28 @@
 #include "setupgame.hpp"
 #include "pausemenu.hpp"
 #include "menuupdate.hpp"
+#include "resourcemanager.hpp"
 
-bool PauseMenu()
+bool PauseMenu(ResourceManager &resMan, bool &menu)
 {
     bool quit(false);
     bool playing(true);
     while( playing && !glfwWindowShouldClose(glfwGetCurrentContext()))
     {
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-        TextRenderer textRenderer;
-        std::vector<std::string> textVec;
-        textVec.push_back("Continue");    textVec.push_back("Options");
-        textVec.push_back("Quit");
+        TextRenderer textRenderer(resMan.GetTexture("text.png"));
+        std::vector<std::string> textVec{"Continue", "Options", "Return To Menu", "Quit"};
+
         textRenderer.AddTextVerticalAlign(textVec, TextRenderer::Alignment::Center,
                                           TextRenderer::Alignment::Center, 35.0f,
                                           glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
         textRenderer.ChangeTextColour("Continue", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
         textRenderer.AddText("Press Enter To Select Menu Item", TextRenderer::Alignment::Center,
                              TextRenderer::Alignment::Bottom, 20, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
+
         unsigned int menuPos(0);
-        bool menuOptionSelected(false);
-        bool enterPressed(false);
+        bool menuOptionSelected(false), enterPressed(false);
+
         while(!glfwWindowShouldClose(glfwGetCurrentContext()) &&
               !menuOptionSelected)
         {
@@ -54,6 +55,13 @@ bool PauseMenu()
             else if(menuPos == 2)
             {
                 quit = true;
+                menu = true;
+                playing = false;
+            }
+            else if(menuPos == 3)
+            {
+                quit = true;
+                menu = false;
                 playing = false;
             }
             else

@@ -1,6 +1,8 @@
 #ifndef PAUSEMENU_HPP
 #define PAUSEMENU_HPP
 
-bool PauseMenu();
+class ResourceManager;
+
+bool PauseMenu(ResourceManager &resourceManager, bool &menu);
 
 #endif // PAUSEMENU_HPP

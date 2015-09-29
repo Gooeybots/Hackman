@@ -14,11 +14,11 @@ Map::Map():mTrees(0)
     {
         std::string str;
         while(data >> str)
-            mMapFiles.push_back(str.c_str());
+        {
+            mMapFiles.push_back(str);
+        }
 
         mWhichMap = mMapFiles.begin();
-
-        RetriveMapFromFile();
     }
 
 }
@@ -45,10 +45,11 @@ bool Map::LoadNextMap()
         if(RetriveMapFromFile())
             return true;
     }
+
     return false;
 }
 
-bool Map::CanMove(const Direction dir, const glm::ivec2 &where) const
+bool Map::CanMove(const Direction dir, const glm::ivec2 &where, const bool active) const
 {
     if(CanTravelDirection(where.x, where.y, dir))
     {
@@ -62,20 +63,24 @@ bool Map::CanMove(const Direction dir, const glm::ivec2 &where) const
         else if(dir == Direction::Down)
             nextSquare.y -= 1;
         Object obj(GetWhichObject(nextSquare));
-        return CanPassThroughObject(obj);
+        return CanPassThroughObject(obj, active);
     }
     return false;
 }
 
 bool Map::RetriveMapFromFile()
 {
+    mTrees = 0;
     std::stringstream data;
-    if(ReadToStream(*mWhichMap, data))
+    if(ReadToStream((*mWhichMap).c_str(), data))
     {
         mWhichMap++;
+        if(mWhichMap == mMapFiles.end())
+            mWhichMap = mMapFiles.begin(); // so it loops through the maps
+
         for(auto & square : mMap)
         {
-            unsigned int item;
+            unsigned int item(0);
             data >> item;
             square = item;
             if(item == 1)
@@ -95,21 +100,43 @@ bool Map::RetriveMapFromFile()
     return false;
 }
 
-void Map::SetObject(const glm::ivec2 &whichSquare, const unsigned int player)
+bool Map::UpdateSpecialObj(const glm::ivec2 &whichSquare)
+{
+    bool retValue(false);
+    unsigned int where(whichSquare.x + (whichSquare.y * 28));
+
+    if(mMap[where] != 8)
+    {
+        mMap[where] = 8;
+        retValue = true;
+    }
+    return retValue;
+}
+
+void Map::HideSpecialObj()
+{
+    for(auto & where : mMap)
+    {
+        if(where == 8)
+        {
+            where = 0;
+            break;
+        }
+    }
+}
+
+void Map::SetObject(const glm::ivec2 &whichSquare)
 {
     unsigned int where(whichSquare.x + (whichSquare.y * 28));
     Object obj(GetWhichObject(whichSquare));
 
-    if(obj == Object::player || obj == Object::enemy1 || obj == Object::enemy2 ||
-            obj == Object::enemy3 || obj == Object::enemy4)
-        mMap[where] += player;
-    else if(obj == Object::tree)
+    if(obj == Object::tree)
     {
-        mMap[where] = player;
+        mMap[where] = 2;
         mTrees -= 1;
     }
     else
-        mMap[where] = player;
+        mMap[where] = 0;
 }
 
 bool Map::CanTravelDirection(const unsigned int x, const unsigned int y,
@@ -123,17 +150,21 @@ bool Map::CanTravelDirection(const unsigned int x, const unsigned int y,
     return true;
 }
 
-bool Map::CanPassThroughObject(const Object obj) const
+bool Map::CanPassThroughObject(const Object obj, const bool active) const
 {
     bool retValue(false);
     switch(obj)
     {
-    case Object::block1: case Object::block2: case Object::wolfEntrance:
+    case Object::block1: case Object::block2:
         retValue = false;
+        break;
+    case Object::wolfEntrance:
+        retValue = active;
         break;
     default:
         retValue = true;
     }
+
     return retValue;
 }
 
@@ -194,5 +225,3 @@ Object Map::GetWhichObject(const glm::ivec2 &whichSquare) const
     }
     return obj;
 }
-
-

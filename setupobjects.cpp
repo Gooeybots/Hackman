@@ -1,23 +1,91 @@
 #include <algorithm>
+#include <memory>
 #include "setupobjects.hpp"
 #include "resourcemanager.hpp"
 #include "map.hpp"
 #include "visibleobject.hpp"
 #include "character.hpp"
 #include "ai.hpp"
+#include "mapeditor.hpp"
+#include "enemy.hpp"
 
+void UpdateSpecialObj(std::vector<std::shared_ptr<VisibleObject>> &vec, ResourceManager &resMan);
 bool ByPlayer(std::shared_ptr<VisibleObject> &a, std::shared_ptr<VisibleObject> &b);
+void FromMapToVec(std::vector<std::shared_ptr<VisibleObject>> &vec,
+                  const Map &map, ResourceManager &resMan, unsigned int &enemyno);
 std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const float x,
                                                  const float y,  unsigned int &enemyNo,
                                                  ResourceManager &resMan);
-std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,
-                                         std::vector<std::shared_ptr<VisibleObject>> &objVec);
 
-void GetVecFullOfObjects(std::vector<std::shared_ptr<VisibleObject> > &vec,
-                         const Map &map, ResourceManager &resMan,
-                         std::vector<AI> &aiVec)
+bool GetVecFullOfObjects(std::vector<std::shared_ptr<VisibleObject> > &vec, Map &map,
+                         ResourceManager &resMan, std::vector<PatrolArea> &patVec)
 {
+    patVec.clear();
     unsigned int enemy(2);
+    FromMapToVec(vec, map, resMan, enemy);
+
+    for(unsigned int i(0); i < enemy - 2; ++i)
+    {
+        float x(*(map.mAiPatrolPositions.begin() + (i * 4)));
+        float y(*(map.mAiPatrolPositions.begin() + (i * 4) + 1));
+        float x1(*(map.mAiPatrolPositions.begin() + (i * 4) + 2));
+        float y1(*(map.mAiPatrolPositions.begin() + (i * 4) + 3));
+
+        patVec.push_back(PatrolArea(i + 2, x, y, x1, y1));
+    }
+    map.mAiPatrolPositions.clear();
+    return true;
+}
+
+bool GetVecFullOfObjects(std::vector<std::shared_ptr<VisibleObject> > &vec, Map &map,
+                         ResourceManager &resMan, std::vector<std::shared_ptr<AI>> &aiVec)
+{
+    aiVec.clear();
+    unsigned int enemy(2);
+    FromMapToVec(vec, map, resMan, enemy);
+    UpdateSpecialObj(vec, resMan);
+    std::shared_ptr<VisibleObject> player(GetPlayer(1, vec));
+    if(player)
+    {
+        for(unsigned int i(0); i < enemy - 2; ++i)
+        {
+            std::shared_ptr<VisibleObject> enemy(GetPlayer(i + 2, vec));
+            Object obj(map.GetWhichObject(glm::ivec2((int)enemy->GetX(), (int)enemy->GetY())));
+            AI::ChaseType chase;
+
+            switch(obj)
+            {
+            case Object::enemy2:
+                chase = AI::ChaseType::Infront;
+                break;
+            case Object::enemy3:
+                chase = AI::ChaseType::Behind;
+                break;
+            case Object::enemy4:
+                chase = AI::ChaseType::Stalk;
+                break;
+            default:
+                chase = AI::ChaseType::DeadOn;
+            }
+
+            float x(*(map.mAiPatrolPositions.begin() + (i * 4)));
+            float y(*(map.mAiPatrolPositions.begin() + (i * 4) + 1));
+            float x1(*(map.mAiPatrolPositions.begin() + (i * 4) + 2));
+            float y1(*(map.mAiPatrolPositions.begin() + (i * 4) + 3));
+
+            aiVec.push_back(std::make_shared<AI>(enemy, player, x, y, x1, y1, chase));
+        }
+        map.mAiPatrolPositions.clear();
+        std::sort(vec.begin(), vec.end(), ByPlayer);
+
+        return true;
+    }
+    return false;
+}
+
+void FromMapToVec(std::vector<std::shared_ptr<VisibleObject> > &vec,
+                  const Map &map, ResourceManager &resMan, unsigned int &enemy)
+{
     vec.clear();
     for(unsigned int y(0); y < 30; ++y)
     {
@@ -31,18 +99,6 @@ void GetVecFullOfObjects(std::vector<std::shared_ptr<VisibleObject> > &vec,
         }
     }
     std::sort(vec.begin(), vec.end(), ByPlayer);
-
-    std::shared_ptr<VisibleObject> player(GetPlayer(1, vec));
-    for(unsigned int i(0); i < enemy - 2; ++i)
-    {
-        float x(*(map.mAiPatrolPositions.begin() + (i * 4)));
-        float y(*(map.mAiPatrolPositions.begin() + (i * 4) + 1));
-        float x1(*(map.mAiPatrolPositions.begin() + (i * 4) + 2));
-        float y1(*(map.mAiPatrolPositions.begin() + (i * 4) + 3));
-
-        AI ai(GetPlayer(i + 2, vec), player, x, y, x1, y1);
-        aiVec.push_back(ai);
-    }
 }
 
 bool ByPlayer(std::shared_ptr<VisibleObject> &a,
@@ -66,7 +122,8 @@ std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const float x
             sceneryTexture(resMan.GetTexture("scenery.png")),
             scenery2Texture(resMan.GetTexture("scenery2.png")),
             wolfTexture(resMan.GetTexture("wolf.png")),
-            bearTexture(resMan.GetTexture("bear.png"));
+            bearTexture(resMan.GetTexture("bear.png")),
+            snakeTexture(resMan.GetTexture("snake.png"));
     std::shared_ptr<unsigned int> vaoTopLeft(resMan.GetVao("vao top left")),
             vaoTopRight(resMan.GetVao("vao top right")),
             vaoBottomLeft(resMan.GetVao("vao bottom left")),
@@ -79,27 +136,27 @@ std::shared_ptr<VisibleObject> GetObjectFromEnum(const Object obj, const float x
     {
     case Object::player:
         return ptr(new Character(xOffset, yOffset, speed, 1, vaoTopLeft, vaoBottomLeft,
-                                 geoffTexture, characterProgram, 3));
+                                 geoffTexture, characterProgram, vaoBottomRight));
         break;
     case Object::enemy1:
         enemyNo += 1;
-        return ptr(new Character(xOffset, yOffset, speed, enemyNo - 1, vaoTopLeft, vaoBottomLeft,
-                                 wolfTexture, characterProgram));
+        return ptr(new Enemy(xOffset, yOffset, speed, enemyNo - 1, vaoTopLeft, vaoBottomLeft,
+                             wolfTexture, characterProgram, vaoBottomRight, vaoTopRight));
         break;
     case Object::enemy2:
         enemyNo += 1;
-        return ptr(new Character(xOffset, yOffset, speed, enemyNo - 1, vaoTopLeft, vaoBottomLeft,
-                                 bearTexture, characterProgram));
+        return ptr(new Enemy(xOffset, yOffset, speed, enemyNo - 1, vaoTopLeft, vaoBottomLeft,
+                             bearTexture, characterProgram, vaoBottomRight, vaoTopRight));
         break;
     case Object::enemy3:
         enemyNo += 1;
-        return ptr(new Character(xOffset, yOffset, speed, enemyNo - 1, vaoTopLeft, vaoBottomLeft,
-                                 geoffTexture, characterProgram));
+        return ptr(new Enemy(xOffset, yOffset, speed, enemyNo - 1, vaoTopLeft, vaoBottomLeft,
+                             geoffTexture, characterProgram, vaoBottomRight, vaoTopRight));
         break;
     case Object::enemy4:
         enemyNo += 1;
-        return ptr(new Character(xOffset, yOffset, speed, enemyNo - 1, vaoTopLeft, vaoBottomLeft,
-                                 geoffTexture, characterProgram));
+        return ptr(new Enemy(xOffset, yOffset, speed, enemyNo - 1, vaoTopLeft, vaoBottomLeft,
+                             snakeTexture, characterProgram, vaoBottomRight, vaoTopRight));
         break;
     case Object::tree:
         return ptr(new VisibleObject(xOffset, yOffset, vaoTopLeft, vaoBottomLeft,
@@ -148,4 +205,19 @@ std::shared_ptr<VisibleObject> GetPlayer(const unsigned int player,
         }
     }
     return playerToRet;
+}
+
+void UpdateSpecialObj(std::vector<std::shared_ptr<VisibleObject> > &vec, ResourceManager &resMan)
+{
+    std::shared_ptr<unsigned int> vao(resMan.GetVao("vao bottom right")),
+            texture(resMan.GetTexture("scenery2.png"));
+
+    for(auto & obj : vec)
+    {
+        if(*(obj->GetTexture()) == *texture && *(obj->GetVao()) == *vao)
+        {
+            obj->SwitchVaos();
+            break;
+        }
+    }
 }

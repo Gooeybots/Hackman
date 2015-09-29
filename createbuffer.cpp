@@ -11,30 +11,30 @@ GLuint CreateBuffer()
     positions.push_back(-0.5f); positions.push_back( 0.5f);
     positions.push_back(-0.5f); positions.push_back(-0.5f);
 // tex coords full
-    positions.push_back(1.0f); positions.push_back(1.0f);
     positions.push_back(1.0f); positions.push_back(0.0f);
-    positions.push_back(0.0f); positions.push_back(0.0f);
+    positions.push_back(1.0f); positions.push_back(1.0f);
     positions.push_back(0.0f); positions.push_back(1.0f);
+    positions.push_back(0.0f); positions.push_back(0.0f);
 // tex coords top left
     positions.push_back(0.5f); positions.push_back(0.5f);
-    positions.push_back(0.5f); positions.push_back(0.0f);
-    positions.push_back(0.0f); positions.push_back(0.0f);
+    positions.push_back(0.5f); positions.push_back(1.0f);
+    positions.push_back(0.0f); positions.push_back(1.0f);
     positions.push_back(0.0f); positions.push_back(0.5f);
 // tex coords top right
     positions.push_back(1.0f); positions.push_back(0.5f);
-    positions.push_back(1.0f); positions.push_back(0.0f);
-    positions.push_back(0.5f); positions.push_back(0.0f);
+    positions.push_back(1.0f); positions.push_back(1.0f);
+    positions.push_back(0.5f); positions.push_back(1.0f);
     positions.push_back(0.5f); positions.push_back(0.5f);
 // tex coords bottom left
-    positions.push_back(0.5f); positions.push_back(1.0f);
+    positions.push_back(0.5f); positions.push_back(0.0f);
     positions.push_back(0.5f); positions.push_back(0.5f);
     positions.push_back(0.0f); positions.push_back(0.5f);
-    positions.push_back(0.0f); positions.push_back(1.0f);
+    positions.push_back(0.0f); positions.push_back(0.0f);
 // tex coords bottom right
-    positions.push_back(1.0f); positions.push_back(1.0f);
+    positions.push_back(1.0f); positions.push_back(0.0f);
     positions.push_back(1.0f); positions.push_back(0.5f);
     positions.push_back(0.5f); positions.push_back(0.5f);
-    positions.push_back(0.5f); positions.push_back(1.0f);
+    positions.push_back(0.5f); positions.push_back(0.0f);
 
     GLuint buffer(0);
 

@@ -20,18 +20,7 @@
 #include "ai.hpp"
 #include "setupobjects.hpp"
 #include "character.hpp"
-
-struct PatrolArea
-{
-    PatrolArea(const unsigned int playerIn, const float xIn,
-               const float yIn, const float x1In, const float y1In)
-        :player(playerIn), x(xIn), y(yIn), x1(x1In), y1(y1In){}
-    unsigned int player;
-    float x;
-    float y;
-    float x1;
-    float y1;
-};
+#include "setupgame.hpp"
 
 bool Menu(std::vector<std::shared_ptr<VisibleObject>> &mapVec,
           ResourceManager &resMan, std::vector<PatrolArea> &patVec);
@@ -53,7 +42,6 @@ void PutPatrolCoordsToVec(std::vector<float> &mMap, const std::vector<PatrolArea
 void RemoveFromVector(std::vector<std::shared_ptr<VisibleObject> > &vect,
                       const std::shared_ptr<VisibleObject> &obj, std::vector<PatrolArea> &patVec);
 void GetMousePos(int &x, int &y);
-void CreateResources(ResourceManager &resManager);
 void FillObjectVector(std::vector<std::shared_ptr<VisibleObject>> &objVec,
                       ResourceManager &resManager);
 void PutObjectInVector(const int x, const int y,
@@ -69,12 +57,11 @@ bool LowestPos(std::shared_ptr<VisibleObject> &a, std::shared_ptr<VisibleObject>
 std::shared_ptr<VisibleObject> GetObjectFromVector(const int x, const int y, const unsigned int &enemy,
         const std::vector<std::shared_ptr<VisibleObject>> &objVec);
 
-void MakeMap()
+void MakeMap(ResourceManager &resMan)
 {
     glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
     glm::mat4 view(glm::ortho(0.0f, 40.0f, 0.0f, 30.0f, 1.0f, -1.0f));
 
-    ResourceManager resMan;
     CreateResources(resMan);
     std::shared_ptr<unsigned int> geoffTexture(resMan.GetTexture("geoff.png"));
     std::shared_ptr<VisibleObject> posPtr(new VisibleObject
@@ -180,7 +167,7 @@ void SelectObject(const int x, const int y, unsigned int &enemy,
                 std::shared_ptr<VisibleObject> ptr(
                             new Character((int)selected->GetX() + 0.5f, (int)selected->GetY() + 0.5f, 4.0f,
                             enemy, selected->GetVao(), selected->GetVao(),
-                            selected->GetTexture(), selected->GetProgram()));
+                            selected->GetTexture(), selected->GetProgram(), nullptr));
                 enemy += 1;
                 mapVec.push_back(ptr);
                 selected = positionPtr;
@@ -243,9 +230,9 @@ std::shared_ptr<VisibleObject> GetObjectFromVector(const int x, const int y, con
     std::shared_ptr<VisibleObject> ptr(nullptr);
     for(auto & obj : objVec)
     {
-        if((int)obj->GetX() == x && (int)obj->GetY() == y && obj->GetTexture() > 0)
+        if((int)obj->GetX() == x && (int)obj->GetY() == y && obj->GetTexture())
         {
-            if(obj->GetPlayer() < 2)
+            if(obj->GetPlayer() == 0)
             {
                 ptr = std::make_shared<VisibleObject>(x + 0.5f, y + 0.5f, obj->GetVao(),
                                                       obj->GetVao(), obj->GetTexture(),
@@ -255,7 +242,8 @@ std::shared_ptr<VisibleObject> GetObjectFromVector(const int x, const int y, con
             {
                 ptr = std::make_shared<Character>(x + 0.5f, y + 0.5f, 4.0f,
                                                   enemy, obj->GetVao(), obj->GetVao(),
-                                                  obj->GetTexture(), obj->GetProgram());
+                                                  obj->GetTexture(), obj->GetProgram(),
+                                                  nullptr);
             }
             break;
         }
@@ -271,7 +259,8 @@ bool CheckVectorAndRemove(std::vector<std::shared_ptr<VisibleObject> > &vect,
 
     for(auto obj(vect.begin()); obj != vect.end();)
     {
-        if((*obj)->GetTexture() == geoffTexture)
+        if((*obj)->GetTexture() == geoffTexture &&
+                (*obj)->GetTexture() == object->GetTexture())
             obj = vect.erase(obj); // so only one geoff can exist
         else if((int)(*obj)->GetX() == (int)object->GetX() &&
                 (int)(*obj)->GetY() == (int)object->GetY())
@@ -303,7 +292,7 @@ void RemoveFromVector(std::vector<std::shared_ptr<VisibleObject> > &vect,
                 unsigned int player((*obj)->GetPlayer());
                 for(auto patrol(patVec.begin()); patrol != patVec.end(); ++patrol)
                 {
-                    if((*patrol).player == player)
+                    if(patrol->player == player)
                         patVec.erase(patrol);
                     break;
                 }
@@ -392,6 +381,10 @@ void SaveMap(std::vector<std::shared_ptr<VisibleObject> > &mapVec,
         else if(obj->GetTexture() == resMan.GetTexture("bear.png"))
         {
             what = 11;
+        }
+        else if(obj->GetTexture() == resMan.GetTexture("snake.png"))
+        {
+            what = 13;
         }
         else if(obj->GetTexture() == resMan.GetTexture("scenery.png"))
         {
@@ -491,16 +484,29 @@ void LoadMap(std::vector<std::shared_ptr<VisibleObject> > &mapVec,
     }
 }
 
-void SetupMap(std::vector<std::shared_ptr<VisibleObject> > &mapVec,
-              ResourceManager &resMan, const char *filename, std::vector<PatrolArea> &patVec)
+void SetupMap(std::vector<std::shared_ptr<VisibleObject> > &mapVec, ResourceManager &resMan,
+              const char *filename, std::vector<PatrolArea> &patVec)
 {
     Map map(filename);
-    std::vector<AI> aiVec;
-    GetVecFullOfObjects(mapVec, map, resMan, aiVec);
-    for(auto & ai : aiVec)
+    GetVecFullOfObjects(mapVec, map, resMan, patVec);
+
     {
-        PatrolArea patArea(ai.GetPlayer(), ai.mFirstPos.x, ai.mFirstPos.y, ai.mSecondPos.x, ai.mSecondPos.y);
-        patVec.push_back(patArea);
+        auto player(mapVec.begin());
+        for(;player != mapVec.end(); ++player)
+        {
+            if((*player)->GetPlayer() == 1)
+                break;
+        }
+        if(*player)
+        {
+            std::shared_ptr<VisibleObject> ptr(
+                        new VisibleObject((*player)->GetX(), (*player)->GetY(),
+                                          (*player)->GetVao(), (*player)->GetVao(),
+                                          (*player)->GetTexture(),
+                                          resMan.GetProgram("textured.vs", "textured.fs")));
+            mapVec.erase(player);
+            mapVec.push_back(ptr);
+        }
     }
 }
 
@@ -537,36 +543,6 @@ void GetMousePos(int &x, int &y)
     y = (int)(30 - (mouseY / screenPosY));
 }
 
-void CreateResources(ResourceManager &resourceManager)
-{
-    resourceManager.CreateTexture("geoff.png");
-    resourceManager.CreateTexture("wolf.png");
-    resourceManager.CreateTexture("bear.png");
-    resourceManager.CreateTexture("scenery.png");
-    resourceManager.CreateTexture("scenery2.png");
-    resourceManager.CreateTexture("text.png");
-
-    resourceManager.CreateProgram("textured.vs", "textured.fs");
-    resourceManager.CreateProgram("character.vs", "textured.fs");
-    resourceManager.CreateProgram("colouredsquare.vs", "colouredsquare.fs");
-
-    std::shared_ptr<unsigned int> buffer(new unsigned int (CreateBuffer())),
-    vao(new unsigned int (CreateVAO(*buffer, 1))),
-    vaoTopLeft(new unsigned int (CreateVAO(*buffer, 2))),
-    vaoTopRight(new unsigned int (CreateVAO(*buffer, 3))),
-    vaoBottomLeft(new unsigned int (CreateVAO(*buffer, 4))),
-    vaoBottomRight(new unsigned int (CreateVAO(*buffer, 5))),
-    vaoPlainColour(new unsigned int (SetupStandardVAO(*buffer)));
-
-    resourceManager.AddVao("buffer", buffer);
-    resourceManager.AddVao("full vao", vao);
-    resourceManager.AddVao("vao top left", vaoTopLeft);
-    resourceManager.AddVao("vao top right", vaoTopRight);
-    resourceManager.AddVao("vao bottom left", vaoBottomLeft);
-    resourceManager.AddVao("vao bottom right", vaoBottomRight);
-    resourceManager.AddVao("vao plain colour", vaoPlainColour);
-}
-
 void FillObjectVector(std::vector<std::shared_ptr<VisibleObject> > &objVec,
                       ResourceManager &resManager)
 {
@@ -583,6 +559,7 @@ void FillObjectVector(std::vector<std::shared_ptr<VisibleObject> > &objVec,
     std::shared_ptr<unsigned int> geoffTex(resManager.GetTexture("geoff.png"));
     std::shared_ptr<unsigned int> wolfTex(resManager.GetTexture("wolf.png"));
     std::shared_ptr<unsigned int> bearTex(resManager.GetTexture("bear.png"));
+    std::shared_ptr<unsigned int> snakeTex(resManager.GetTexture("snake.png"));
     std::shared_ptr<unsigned int> sceneryTex(resManager.GetTexture("scenery.png"));
     std::shared_ptr<unsigned int> sceneryTex2(resManager.GetTexture("scenery2.png"));
 
@@ -607,12 +584,17 @@ void FillObjectVector(std::vector<std::shared_ptr<VisibleObject> > &objVec,
 
     ptr = std::make_shared<VisibleObject>(x, 22.5f, vaoPlainColour, vaoPlainColour, nullptr, programPlainColour);
     objVec.push_back(ptr);
-    ptr = std::make_shared<Character>(x, 22.5f, 4.0f, 1, vaoTopLeft, vaoTopLeft, wolfTex, programCharacter);
+    ptr = std::make_shared<Character>(x, 22.5f, 4.0f, 1, vaoTopLeft, vaoTopLeft, wolfTex, programCharacter, nullptr);
     objVec.push_back(ptr);
 
     ptr = std::make_shared<VisibleObject>(x, 21.5f, vaoPlainColour, vaoPlainColour, nullptr, programPlainColour);
     objVec.push_back(ptr);
-    ptr = std::make_shared<Character>(x, 21.5f, 4.0f, 1, vaoTopLeft, vaoTopLeft, bearTex, programCharacter);
+    ptr = std::make_shared<Character>(x, 21.5f, 4.0f, 1, vaoTopLeft, vaoTopLeft, bearTex, programCharacter, nullptr);
+    objVec.push_back(ptr);
+
+    ptr = std::make_shared<VisibleObject>(x + 1.0f , 21.5f, vaoPlainColour, vaoPlainColour, nullptr, programPlainColour);
+    objVec.push_back(ptr);
+    ptr = std::make_shared<Character>(x + 1.0f, 21.5f, 4.0f, 1, vaoTopLeft, vaoTopLeft, snakeTex, programCharacter, nullptr);
     objVec.push_back(ptr);
 
     ptr = std::make_shared<VisibleObject>(x, 19.5f, vaoPlainColour, vaoPlainColour, nullptr, programPlainColour);

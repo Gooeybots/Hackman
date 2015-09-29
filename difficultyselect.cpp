@@ -1,48 +1,46 @@
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <vector>
 #include <string>
+#include <GLFW/glfw3.h>
 #include "resourcemanager.hpp"
 #include "textrenderer.hpp"
-#include "mainmenu.hpp"
-#include "menuupdate.hpp"
-#include "mapeditor.hpp"
-#include "highscoremenu.hpp"
 #include "difficultyselect.hpp"
+#include "setupgame.hpp"
+#include "menuupdate.hpp"
+#include <highscoremenu.hpp>
 
-bool MenuOption(ResourceManager &resMan, unsigned int menuPos);
-unsigned int DisplayMenu(ResourceManager &resMan);
+bool DifficultyOption(ResourceManager &resMan, unsigned int menuPos);
+unsigned int DifficultyMenu(ResourceManager &resMan);
 
-void MainMenu()
+bool DifficultySelect(ResourceManager &resMan)
 {
-    ResourceManager resMan;
-    resMan.CreateTexture("text.png");
-
     unsigned int menuPos(0);
-    for(bool playing(true); playing &&
-        !glfwWindowShouldClose(glfwGetCurrentContext());)
+    bool playing(true);
+    bool retValue(false);
+    while(playing && !glfwWindowShouldClose(glfwGetCurrentContext()))
     {
-        menuPos = DisplayMenu(resMan);
+        menuPos = DifficultyMenu(resMan);
         if(menuPos > 0)
         {
             menuPos -= 1;
-            playing = MenuOption(resMan, menuPos);
+            retValue = DifficultyOption(resMan, menuPos);
+            playing = false;
         }
         else
             playing = false;
     }
+    return retValue;
 }
-
-unsigned int DisplayMenu(ResourceManager &resMan)
+unsigned int DifficultyMenu(ResourceManager &resMan)
 {
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     TextRenderer textRenderer(resMan.GetTexture("text.png"));
 
-    std::vector<std::string> textVec{"Start", "Options", "Map Editor", "Highscores", "Quit"};
+    std::vector<std::string> textVec{"Easy", "Medium", "Hard", "Back To Main Menu"};
 
     textRenderer.AddTextVerticalAlign(textVec, TextRenderer::Alignment::Center,
                                       TextRenderer::Alignment::Center, 35.0f,
                                       glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
-    textRenderer.ChangeTextColour("Start", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+    textRenderer.ChangeTextColour("Easy", glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
     textRenderer.AddText("Press Enter To Select Menu Item", TextRenderer::Alignment::Center,
                          TextRenderer::Alignment::Bottom, 20, glm::vec4(0.0f, 0.0f, 1.0f, 1.0f));
 
@@ -75,22 +73,31 @@ unsigned int DisplayMenu(ResourceManager &resMan)
     return 0;
 }
 
-bool MenuOption(ResourceManager &resMan, unsigned int menuPos)
+bool DifficultyOption(ResourceManager &resMan, unsigned int menuPos)
 {
-    bool playing(false);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    unsigned int lives(0);
+    bool playing(true);
+
     if(menuPos == 0)
     {
-        playing = DifficultySelect(resMan);
+        lives = 5;
+    }
+    else if(menuPos == 1)
+    {
+            lives = 3;
     }
     else if(menuPos == 2)
     {
-            playing = true;
-            MakeMap(resMan);
+        lives = 1;
     }
-    else if(menuPos == 3)
+
+    if(lives > 0)
     {
-        playing = true;
-        DisplayHighscores(resMan);
+        playing = SetupGame(resMan, lives);
+        if(playing)
+            DisplayHighscores(resMan);
     }
+
     return playing;
 }

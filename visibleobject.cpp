@@ -5,8 +5,8 @@
 #include "visibleobject.hpp"
 
 VisibleObject::VisibleObject(const float xOffset, const float yOffset,
-                             const std::shared_ptr<unsigned int> vao, const std::shared_ptr<unsigned int> nextVao,
-                             const std::shared_ptr<unsigned int> texture, const std::shared_ptr<unsigned int> program):
+                             const std::shared_ptr<unsigned int> &vao, const std::shared_ptr<unsigned int> &nextVao,
+                             const std::shared_ptr<unsigned int> &texture, const std::shared_ptr<unsigned int> &program):
     mXOffset(xOffset), mYOffset(yOffset), mVao(vao), mNextVao(nextVao), mTexture(texture),
     mProgram(program){}
 
@@ -18,8 +18,6 @@ void VisibleObject::SwitchVaos()
     mVao = mNextVao;
     mNextVao = temp;
 }
-
-void VisibleObject::TakeLife(){}
 
 void VisibleObject::ResetToOriginalSquare(){}
 
@@ -73,6 +71,11 @@ void VisibleObject::Draw(const glm::mat4 &view)
     }
 }
 
+bool VisibleObject::GetActive()
+{
+    return false;
+}
+
 Direction VisibleObject::GetPrevDirection()
 {
     return Direction::None;
@@ -88,17 +91,17 @@ std::shared_ptr<unsigned int> VisibleObject::GetVao()
     return mVao;
 }
 
+std::shared_ptr<unsigned int> VisibleObject::GetNextVao()
+{
+    return mNextVao;
+}
+
 std::shared_ptr<unsigned int> VisibleObject::GetProgram()
 {
     return mProgram;
 }
 
 unsigned int VisibleObject::GetPlayer()
-{
-    return 0;
-}
-
-unsigned int VisibleObject::GetLives()
 {
     return 0;
 }
@@ -122,3 +125,12 @@ void VisibleObject::SetY(const float y)
 {
     mYOffset = y;
 }
+
+void VisibleObject::ChangeCanDie(){}
+
+bool VisibleObject::GetCanDie()
+{
+    return false;
+}
+
+void VisibleObject::SwitchDeathVao(){}

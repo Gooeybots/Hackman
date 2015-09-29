@@ -1,5 +1,6 @@
 #include <fstream>
 #include "writedata.hpp"
+#include "highscoremenu.hpp"
 
 bool WriteData(const std::vector<float> &mAIVec, const std::array<unsigned int, 840> &map, const char *filename)
 {
@@ -24,6 +25,22 @@ bool WriteData(const std::vector<float> &mAIVec, const std::array<unsigned int, 
             file.close();
             retValue = true;
         }
+    }
+    return retValue;
+}
+
+bool WriteHighscore(const std::vector<Scores> &scoreVec)
+{
+    bool retValue(false);
+    std::ofstream file("highscores.txt", std::ios::out | std::ios::trunc);
+    if(file.is_open())
+    {
+        for(auto & scores : scoreVec)
+        {
+            file << scores.name << " " << scores.score << " ";
+        }
+        file.close();
+        retValue = true;
     }
     return retValue;
 }
