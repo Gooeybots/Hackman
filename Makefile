@@ -18,7 +18,7 @@ CXXFLAGS      = -m64 -pipe -std=c++11 -std=gnu++11 -g -Wall -W -D_REENTRANT -fPI
 INCPATH       = -I/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++-64 -I. -isystem /usr/include/x86_64-linux-gnu/qt5 -isystem /usr/include/x86_64-linux-gnu/qt5/QtGui -isystem /usr/include/x86_64-linux-gnu/qt5/QtCore -I.
 LINK          = g++
 LFLAGS        = -m64
-LIBS          = $(SUBLIBS) -L/usr/X11R6/lib64 -lGLEW -lglfw -lQt5Gui -lQt5Core -lGL -lpthread 
+LIBS          = $(SUBLIBS) -L/usr/X11R6/lib64 -lGLEW -lglfw -lvorbisfile -lopenal -lQt5Gui -lQt5Core -lGL -lpthread 
 AR            = ar cqs
 RANLIB        = 
 QMAKE         = /usr/lib/x86_64-linux-gnu/qt5/bin/qmake
@@ -69,7 +69,9 @@ SOURCES       = window.cpp \
 		createbuffer.cpp \
 		writedata.cpp \
 		enemy.cpp \
-		difficultyselect.cpp 
+		difficultyselect.cpp \
+		playmusic.cpp \
+		oggdecoder.cpp 
 OBJECTS       = window.o \
 		main.o \
 		setupgame.o \
@@ -94,7 +96,9 @@ OBJECTS       = window.o \
 		createbuffer.o \
 		writedata.o \
 		enemy.o \
-		difficultyselect.o
+		difficultyselect.o \
+		playmusic.o \
+		oggdecoder.o
 DIST          = colouredsquare.vs \
 		colouredsquare.fs \
 		highscores.txt \
@@ -175,7 +179,9 @@ DIST          = colouredsquare.vs \
 		createbuffer.cpp \
 		writedata.cpp \
 		enemy.cpp \
-		difficultyselect.cpp
+		difficultyselect.cpp \
+		playmusic.cpp \
+		oggdecoder.cpp
 QMAKE_TARGET  = Hackman
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = Hackman
@@ -328,7 +334,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/Hackman1.0.0 || mkdir -p .tmp/Hackman1.0.0
-	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp readtostream.hpp map.hpp visibleobject.hpp character.hpp setupobjects.hpp playgame.hpp ai.hpp directionenum.hpp collisiondetection.hpp textrenderer.hpp mainmenu.hpp pausemenu.hpp menuupdate.hpp highscoremenu.hpp mapeditor.hpp createbuffer.hpp writedata.hpp enemy.hpp difficultyselect.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp readtostream.cpp map.cpp character.cpp visibleobject.cpp setupobjects.cpp playgame.cpp ai.cpp collisiondetection.cpp textrenderer.cpp mainmenu.cpp pausemenu.cpp menuupdate.cpp highscoremenu.cpp mapeditor.cpp createbuffer.cpp writedata.cpp enemy.cpp difficultyselect.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
+	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp readtostream.hpp map.hpp visibleobject.hpp character.hpp setupobjects.hpp playgame.hpp ai.hpp directionenum.hpp collisiondetection.hpp textrenderer.hpp mainmenu.hpp pausemenu.hpp menuupdate.hpp highscoremenu.hpp mapeditor.hpp createbuffer.hpp writedata.hpp enemy.hpp difficultyselect.hpp playmusic.hpp oggdecoder.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp readtostream.cpp map.cpp character.cpp visibleobject.cpp setupobjects.cpp playgame.cpp ai.cpp collisiondetection.cpp textrenderer.cpp mainmenu.cpp pausemenu.cpp menuupdate.cpp highscoremenu.cpp mapeditor.cpp createbuffer.cpp writedata.cpp enemy.cpp difficultyselect.cpp playmusic.cpp oggdecoder.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
 
 
 clean:compiler_clean 
@@ -369,7 +375,8 @@ window.o: window.cpp window.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o window.o window.cpp
 
 main.o: main.cpp window.hpp \
-		mainmenu.hpp
+		mainmenu.hpp \
+		playmusic.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
 setupgame.o: setupgame.cpp loadtexture.hpp \
@@ -523,6 +530,13 @@ difficultyselect.o: difficultyselect.cpp resourcemanager.hpp \
 		menuupdate.hpp \
 		highscoremenu.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o difficultyselect.o difficultyselect.cpp
+
+playmusic.o: playmusic.cpp playmusic.hpp \
+		oggdecoder.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o playmusic.o playmusic.cpp
+
+oggdecoder.o: oggdecoder.cpp oggdecoder.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o oggdecoder.o oggdecoder.cpp
 
 ####### Install
 

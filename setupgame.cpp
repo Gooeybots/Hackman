@@ -4,7 +4,6 @@
 #include <sstream>
 #include <vector>
 #include <memory>
-#include <mutex>
 #include <thread>
 #include <functional>
 #include "loadtexture.hpp"

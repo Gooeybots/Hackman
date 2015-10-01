@@ -1,7 +1,9 @@
 LIBS += \
-    -lGLEW \
-    -lglfw \
-    -lGL
+    -lGLEW  \
+    -lglfw  \
+    -lGL    \
+    -lvorbisfile \
+    -lopenal \
 
 QMAKE_CXXFLAGS += \
     -std=c++11 \
@@ -32,7 +34,9 @@ HEADERS += \
     createbuffer.hpp \
     writedata.hpp \
     enemy.hpp \
-    difficultyselect.hpp
+    difficultyselect.hpp \
+    playmusic.hpp \
+    oggdecoder.hpp
 
 SOURCES += \
     window.cpp \
@@ -59,7 +63,9 @@ SOURCES += \
     createbuffer.cpp \
     writedata.cpp \
     enemy.cpp \
-    difficultyselect.cpp
+    difficultyselect.cpp \
+    playmusic.cpp \
+    oggdecoder.cpp
 
 OTHER_FILES += \
     textured.vs \
