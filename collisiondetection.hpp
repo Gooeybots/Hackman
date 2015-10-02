@@ -13,6 +13,8 @@ struct DeadPlayers
 };
 
 class VisibleObject;
+class ResourceManager;
+class SoundPlayer;
 
 class CollisionDetection
 {
@@ -20,7 +22,8 @@ public:
     CollisionDetection();
 /* returns true if collision happens between any player and enemy */
     bool DetectCollisions(unsigned int &lives, unsigned int &score,
-                          std::vector<DeadPlayers> &deadVec);
+                          std::vector<DeadPlayers> &deadVec, ResourceManager &resMan,
+                          SoundPlayer &soundPlayer);
 
 /* These will add to the correct vector if they are not already present */
     void AddEnemy(std::shared_ptr<VisibleObject> &enemy);

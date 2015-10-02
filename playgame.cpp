@@ -8,6 +8,7 @@
 #include "directionenum.hpp"
 #include "setupobjects.hpp"
 #include "playgame.hpp"
+#include "playsound.hpp"
 #include "map.hpp"
 #include "resourcemanager.hpp"
 #include "visibleobject.hpp"
@@ -35,8 +36,8 @@ bool GetInput(std::vector<Movement> &movement, std::vector<std::shared_ptr<AI>> 
 bool UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
                   std::vector<std::shared_ptr<VisibleObject>> &objVec);
 bool UpdateMap(std::shared_ptr<VisibleObject> &player,
-               std::vector<std::shared_ptr<VisibleObject>> &objVec,
-               Map &map, unsigned int &score);
+               std::vector<std::shared_ptr<VisibleObject>> &objVec, Map &map,
+               unsigned int &score, SoundPlayer &soundPlayer, ResourceManager &resMan);
 void UpdatePlayerMovement(std::shared_ptr<VisibleObject> &player, std::vector<Movement> &moveVec,
                                      Map &map, const float deltaTime);
 bool AISwitchModes(std::vector<std::shared_ptr<AI>> &aiVec, const float timeSinceStart, const float &timesToChange);
@@ -46,6 +47,9 @@ void UpdateEnemysDieStatus(std::vector<std::shared_ptr<VisibleObject>> &objVec,
 bool PlayGame(Map &map, ResourceManager &resourceManager, const unsigned int livesIn)
 {
     bool nextMap(true), menu(true);
+
+    SoundPlayer soundPlayer(alcGetCurrentContext());
+
     unsigned int lives(livesIn);
     unsigned int specialItemScoreRequired(1000);
     unsigned int score(0), changedScore(score);
@@ -90,7 +94,10 @@ bool PlayGame(Map &map, ResourceManager &resourceManager, const unsigned int liv
             glClear(GL_COLOR_BUFFER_BIT);
 
             if(AISwitchModes(aiVec, currTime - mapStartTime, aiStateSwitchTimes.back()))
+            {
+                soundPlayer.AddToPlay(*(resourceManager.GetSound("wolfhowl.ogg")));
                 aiStateSwitchTimes.erase(aiStateSwitchTimes.end() - 1);
+            }
             if(score >= specialItemScoreRequired)
                 specialItemScoreRequired = UpdateSpecialItem(objectVec, map, specialItemScoreRequired, resourceManager);
             if(enemyKillFinish != 0.0)
@@ -103,15 +110,16 @@ bool PlayGame(Map &map, ResourceManager &resourceManager, const unsigned int liv
             }
             if(!deadPlayerVec.empty())
             {
-                for(auto player(deadPlayerVec.begin()); player != deadPlayerVec.end(); ++player)
+                for(auto player(deadPlayerVec.begin()); player != deadPlayerVec.end();)
                 {
                     if((*player).timeEnemyShouldLive <= currTime)
                     {
                         (*player).player->SwitchDeathVao();
                         (*player).player->ResetToOriginalSquare();
                         player = deadPlayerVec.erase(player);
-                        --player;
                     }
+                    else
+                        ++player;
                 }
             }
 
@@ -133,7 +141,7 @@ bool PlayGame(Map &map, ResourceManager &resourceManager, const unsigned int liv
                     UpdatePlayerMovement(obj, movementVec, map, currTime - prevTime);
                     if(obj->GetPlayer() == 1)
                     {
-                        if(UpdateMap(obj, objectVec, map, changedScore))
+                        if(UpdateMap(obj, objectVec, map, changedScore, soundPlayer, resourceManager))
                         {
                             enemyKillFinish = currTime;
                             currTime -= 5.0;
@@ -157,8 +165,9 @@ bool PlayGame(Map &map, ResourceManager &resourceManager, const unsigned int liv
             }
             textRender.DrawAll();
 
-            if(collisionDetect.DetectCollisions(lives, changedScore, deadPlayerVec))
+            if(collisionDetect.DetectCollisions(lives, changedScore, deadPlayerVec, resourceManager, soundPlayer))
             {
+                soundPlayer.AddToPlay(*(resourceManager.GetSound("death.ogg")));
                 if(UpdateLives(lives, textRender, livesVec))
                 {
                     playing = false;
@@ -174,6 +183,8 @@ bool PlayGame(Map &map, ResourceManager &resourceManager, const unsigned int liv
             currTime = glfwGetTime();
         }
     }
+    if(glfwWindowShouldClose(glfwGetCurrentContext()))
+        nextMap = false;
 
     return menu;
 }
@@ -260,7 +271,8 @@ bool UpdateObject(const glm::ivec2 &where, Map &map, const unsigned int player,
 
 bool UpdateMap(std::shared_ptr<VisibleObject> &player,
                std::vector<std::shared_ptr<VisibleObject> > &objectVec, Map &map,
-               unsigned int &score)
+               unsigned int &score, SoundPlayer &soundPlayer,
+               ResourceManager &resMan)
 {
     bool powerPill(false);
     glm::ivec2 where((int)(player->GetX()),
@@ -273,12 +285,15 @@ bool UpdateMap(std::shared_ptr<VisibleObject> &player,
         {
         case Object::tree:
             score += 10;
+            soundPlayer.AddToPlay(*(resMan.GetSound("chop.ogg")));
             break;
         case Object::powerPill:
             score += 10;
+            soundPlayer.AddToPlay(*(resMan.GetSound("chainsaw.ogg")));
             powerPill = true;
             break;
         case Object::specialObject:
+            soundPlayer.AddToPlay(*(resMan.GetSound("woodpile.ogg")));
             score += 100;
             break;
         default:
@@ -373,7 +388,7 @@ void UpdateEnemysDieStatus(std::vector<std::shared_ptr<VisibleObject> > &objVec,
 {
     std::shared_ptr<unsigned int> wolfTexture(resMan.GetTexture("wolf.png")),
             bearTexture(resMan.GetTexture("bear.png")),
-                        snakeTexture(resMan.GetTexture("snake.png"));
+            snakeTexture(resMan.GetTexture("snake.png"));
 
     for(auto & enemy : objVec)
     {

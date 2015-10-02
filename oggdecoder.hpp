@@ -10,15 +10,17 @@
 class OggDecoder
 {
 public:
-    OggDecoder(const char * filename, std::size_t bufferSize);
+    OggDecoder(const char * filename, std::size_t bufferSize = 4096);
 
     std::size_t GetSampleRate();
     std::size_t GetChannels();
     std::size_t GetBPS();
-    std::size_t GetAmountBuffers();
+    std::size_t GetBufferSize();
     char * GetData(const std::size_t nextBuffer, std::size_t &sizeOfBuffer);
+    char * GetData();
     void GetInfo();
     void FillBuffer();
+    void ClearBuffer();
 private:
     std::vector<char> mBuffer;
     std::size_t mSampleRate;

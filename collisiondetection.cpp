@@ -1,13 +1,21 @@
 #include <GLFW/glfw3.h>
+#include "resourcemanager.hpp"
 #include "collisiondetection.hpp"
 #include "visibleobject.hpp"
 #include "textrenderer.hpp"
+#include "playsound.hpp"
 
 CollisionDetection::CollisionDetection(){}
 
 bool CollisionDetection::DetectCollisions(unsigned int &lives, unsigned int &score,
-                                          std::vector<DeadPlayers> &deadPlayVec)
+                                          std::vector<DeadPlayers> &deadPlayVec,
+                                          ResourceManager &resMan,
+                                          SoundPlayer &soundPlay)
 {
+    unsigned int bearTex(*resMan.GetTexture("bear.png")),
+            snakeTex(*resMan.GetTexture("snake.png")),
+            wolfTex(*resMan.GetTexture("wolf.png"));
+
     bool collision(false);
     for(auto player(mPlayers.begin()); player != mPlayers.end(); ++player)
     {
@@ -26,6 +34,12 @@ bool CollisionDetection::DetectCollisions(unsigned int &lives, unsigned int &sco
                     deadPlayer.player = *enemy;
                     deadPlayer.timeEnemyShouldLive = glfwGetTime() + 5.0f;
                     deadPlayVec.push_back(deadPlayer);
+                    if(*((*enemy)->GetTexture()) == bearTex)
+                        soundPlay.AddToPlay(*resMan.GetSound("bear.ogg"));
+                    else if(*((*enemy)->GetTexture()) == snakeTex)
+                        soundPlay.AddToPlay(*resMan.GetSound("snake.ogg"));
+                    else if(*((*enemy)->GetTexture()) == wolfTex)
+                        soundPlay.AddToPlay(*resMan.GetSound("wolfhowl.ogg"));
                 }
                 else
                 {

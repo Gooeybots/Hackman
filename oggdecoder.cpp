@@ -4,7 +4,7 @@
 #include "oggdecoder.hpp"
 
 OggDecoder::OggDecoder(const char * filename, const std::size_t bufferSize)
-    : mBufferSize(bufferSize), mBufferAmount(0), mIsVorbis(true), mFilename(filename)
+    : mBufferSize(bufferSize), mBufferAmount(0), mFilename(filename), mIsVorbis(true)
 {
     OggVorbis_File oggFile;
     FILE * file = fopen(filename, "rb");
@@ -33,7 +33,7 @@ std::size_t OggDecoder::GetBPS()
     return mBps;
 }
 
-std::size_t OggDecoder::GetAmountBuffers()
+std::size_t OggDecoder::GetBufferSize()
 {
     return mBuffer.size();
 }
@@ -49,6 +49,13 @@ char * OggDecoder::GetData(const std::size_t nextBuffer, std::size_t &sizeOfBuff
         sizeOfBuffer = mBuffer.size() - nextBuffer;
 
     return (mBuffer.data() + nextBuffer);
+}
+
+char * OggDecoder::GetData()
+{
+    if(mBuffer.size() == 0)
+        return nullptr;
+    return mBuffer.data();
 }
 
 void OggDecoder::GetInfo()
@@ -86,4 +93,9 @@ void OggDecoder::FillBuffer()
         }while(bytes > 0);
         ov_clear(&oggFile); // closes file
     }
+}
+
+void OggDecoder::ClearBuffer()
+{
+    mBuffer.clear();
 }

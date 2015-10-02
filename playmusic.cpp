@@ -4,32 +4,13 @@
 #include "playmusic.hpp"
 #include "oggdecoder.hpp"
 
-ALuint SetupSource();
 void Play(const ALuint source, bool &playing);
-void SetupListener();
 
-void PlayMusic(bool &playing)
+void PlayMusic(bool &playing, ALCcontext * context)
 {
-    ALCdevice * device(alcOpenDevice(NULL));
-    if(device)
-    {
-
-        ALCcontext * context(alcCreateContext(device, NULL));
-        if(alcMakeContextCurrent(context))
-        {
-            SetupListener();
-            ALuint source(SetupSource());
-            Play(source, playing);
-
-            alcMakeContextCurrent(NULL);
-            alcDestroyContext(context);
-        }
-        else
-            std::cerr << "Failed to make the context current\n";
-        alcCloseDevice(device);
-    }
-    else
-        std::cerr << "No device could be created for the background music\n";
+    alcMakeContextCurrent(context);
+    ALuint source(SetupSource());
+    Play(source, playing);
 }
 
 ALuint SetupSource()
@@ -78,7 +59,7 @@ void Play(const ALuint source, bool &playing)
             alSourceUnqueueBuffers(source, 1, &buffer);
             alBufferData(buffer, format, decoder.GetData(currBuffer, bufferSize),
                          bufferSize, sampleRate);
-            if(currBuffer >= decoder.GetAmountBuffers())
+            if(currBuffer >= decoder.GetBufferSize())
             {
                 bufferSize = 4096;
                 currBuffer = 0;
@@ -95,12 +76,4 @@ void Play(const ALuint source, bool &playing)
     }
     alDeleteSources(1, &source);
     alDeleteBuffers(3, buffers);
-}
-
-void SetupListener()
-{
-    ALfloat listenerOri[] = {0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 0.0f};
-    alListener3f(AL_POSITION, 0.0f, 0.0f, 1.0f);
-    alListener3f(AL_VELOCITY, 0.0f, 0.0f, 0.0f);
-    alListenerfv(AL_ORIENTATION, listenerOri);
 }

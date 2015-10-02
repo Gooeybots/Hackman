@@ -36,7 +36,9 @@ HEADERS += \
     enemy.hpp \
     difficultyselect.hpp \
     playmusic.hpp \
-    oggdecoder.hpp
+    oggdecoder.hpp \
+    loadsound.hpp \
+    playsound.hpp
 
 SOURCES += \
     window.cpp \
@@ -65,7 +67,9 @@ SOURCES += \
     enemy.cpp \
     difficultyselect.cpp \
     playmusic.cpp \
-    oggdecoder.cpp
+    oggdecoder.cpp \
+    loadsound.cpp \
+    playsound.cpp
 
 OTHER_FILES += \
     textured.vs \

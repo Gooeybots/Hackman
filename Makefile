@@ -71,7 +71,9 @@ SOURCES       = window.cpp \
 		enemy.cpp \
 		difficultyselect.cpp \
 		playmusic.cpp \
-		oggdecoder.cpp 
+		oggdecoder.cpp \
+		loadsound.cpp \
+		playsound.cpp 
 OBJECTS       = window.o \
 		main.o \
 		setupgame.o \
@@ -98,7 +100,9 @@ OBJECTS       = window.o \
 		enemy.o \
 		difficultyselect.o \
 		playmusic.o \
-		oggdecoder.o
+		oggdecoder.o \
+		loadsound.o \
+		playsound.o
 DIST          = colouredsquare.vs \
 		colouredsquare.fs \
 		highscores.txt \
@@ -181,7 +185,9 @@ DIST          = colouredsquare.vs \
 		enemy.cpp \
 		difficultyselect.cpp \
 		playmusic.cpp \
-		oggdecoder.cpp
+		oggdecoder.cpp \
+		loadsound.cpp \
+		playsound.cpp
 QMAKE_TARGET  = Hackman
 DESTDIR       = #avoid trailing-slash linebreak
 TARGET        = Hackman
@@ -334,7 +340,7 @@ qmake_all: FORCE
 
 dist: 
 	@test -d .tmp/Hackman1.0.0 || mkdir -p .tmp/Hackman1.0.0
-	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp readtostream.hpp map.hpp visibleobject.hpp character.hpp setupobjects.hpp playgame.hpp ai.hpp directionenum.hpp collisiondetection.hpp textrenderer.hpp mainmenu.hpp pausemenu.hpp menuupdate.hpp highscoremenu.hpp mapeditor.hpp createbuffer.hpp writedata.hpp enemy.hpp difficultyselect.hpp playmusic.hpp oggdecoder.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp readtostream.cpp map.cpp character.cpp visibleobject.cpp setupobjects.cpp playgame.cpp ai.cpp collisiondetection.cpp textrenderer.cpp mainmenu.cpp pausemenu.cpp menuupdate.cpp highscoremenu.cpp mapeditor.cpp createbuffer.cpp writedata.cpp enemy.cpp difficultyselect.cpp playmusic.cpp oggdecoder.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
+	$(COPY_FILE) --parents $(DIST) .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.hpp setupgame.hpp lodepng.h loadtexture.hpp setupprogram.hpp resourcemanager.hpp readtostream.hpp map.hpp visibleobject.hpp character.hpp setupobjects.hpp playgame.hpp ai.hpp directionenum.hpp collisiondetection.hpp textrenderer.hpp mainmenu.hpp pausemenu.hpp menuupdate.hpp highscoremenu.hpp mapeditor.hpp createbuffer.hpp writedata.hpp enemy.hpp difficultyselect.hpp playmusic.hpp oggdecoder.hpp loadsound.hpp playsound.hpp .tmp/Hackman1.0.0/ && $(COPY_FILE) --parents window.cpp main.cpp setupgame.cpp lodepng.cpp loadtexture.cpp setupprogram.cpp resourcemanager.cpp readtostream.cpp map.cpp character.cpp visibleobject.cpp setupobjects.cpp playgame.cpp ai.cpp collisiondetection.cpp textrenderer.cpp mainmenu.cpp pausemenu.cpp menuupdate.cpp highscoremenu.cpp mapeditor.cpp createbuffer.cpp writedata.cpp enemy.cpp difficultyselect.cpp playmusic.cpp oggdecoder.cpp loadsound.cpp playsound.cpp .tmp/Hackman1.0.0/ && (cd `dirname .tmp/Hackman1.0.0` && $(TAR) Hackman1.0.0.tar Hackman1.0.0 && $(COMPRESS) Hackman1.0.0.tar) && $(MOVE) `dirname .tmp/Hackman1.0.0`/Hackman1.0.0.tar.gz . && $(DEL_FILE) -r .tmp/Hackman1.0.0
 
 
 clean:compiler_clean 
@@ -379,7 +385,8 @@ main.o: main.cpp window.hpp \
 		playmusic.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o main.o main.cpp
 
-setupgame.o: setupgame.cpp loadtexture.hpp \
+setupgame.o: setupgame.cpp loadsound.hpp \
+		loadtexture.hpp \
 		setupgame.hpp \
 		resourcemanager.hpp \
 		readtostream.hpp \
@@ -403,7 +410,8 @@ setupprogram.o: setupprogram.cpp readtostream.hpp \
 
 resourcemanager.o: resourcemanager.cpp resourcemanager.hpp \
 		loadtexture.hpp \
-		setupprogram.hpp
+		setupprogram.hpp \
+		loadsound.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o resourcemanager.o resourcemanager.cpp
 
 readtostream.o: readtostream.cpp readtostream.hpp
@@ -441,6 +449,7 @@ playgame.o: playgame.cpp pausemenu.hpp \
 		directionenum.hpp \
 		setupobjects.hpp \
 		playgame.hpp \
+		playsound.hpp \
 		map.hpp \
 		visibleobject.hpp \
 		resourcemanager.hpp \
@@ -537,6 +546,14 @@ playmusic.o: playmusic.cpp playmusic.hpp \
 
 oggdecoder.o: oggdecoder.cpp oggdecoder.hpp
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o oggdecoder.o oggdecoder.cpp
+
+loadsound.o: loadsound.cpp loadsound.hpp \
+		oggdecoder.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o loadsound.o loadsound.cpp
+
+playsound.o: playsound.cpp playsound.hpp \
+		playmusic.hpp
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o playsound.o playsound.cpp
 
 ####### Install
 

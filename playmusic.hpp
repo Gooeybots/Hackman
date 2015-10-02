@@ -1,6 +1,9 @@
 #ifndef PLAYMUSIC_HPP
 #define PLAYMUSIC_HPP
 
-void PlayMusic(bool &playing);
+#include <AL/alc.h>
+
+unsigned int SetupSource();
+void PlayMusic(bool &playing, ALCcontext * context);
 
 #endif // PLAYMUSIC_HPP

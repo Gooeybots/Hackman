@@ -1,11 +1,14 @@
+#include <iostream>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <AL/alc.h>
 #include <string>
 #include <sstream>
 #include <vector>
 #include <memory>
 #include <thread>
 #include <functional>
+#include "loadsound.hpp"
 #include "loadtexture.hpp"
 #include "setupgame.hpp"
 #include "resourcemanager.hpp"
@@ -24,7 +27,14 @@ struct Textures
     unsigned int height;
 };
 
-void CreateTexture(std::vector<Textures> &textureVec);
+struct Sounds
+{
+    Sounds(const std::string file):filename(file){}
+    std::string filename;
+    unsigned int sound;
+};
+
+void CreateTexturesAndSound(std::vector<Textures> &textureVec, std::vector<Sounds> &soundVec);
 
 bool SetupGame(ResourceManager &resourceManager, const unsigned int lives)
 {
@@ -37,35 +47,37 @@ bool SetupGame(ResourceManager &resourceManager, const unsigned int lives)
 void CreateResources(ResourceManager &resourceManager)
 {
     std::vector<Textures> texVec;
+    std::vector<Sounds> soundVec;
 
     if(!resourceManager.GetTexture("geoff.png"))
-    {
         texVec.push_back(Textures("geoff.png"));
-    }
     if(!resourceManager.GetTexture("wolf.png"))
-    {
         texVec.push_back(Textures("wolf.png"));
-    }
     if(!resourceManager.GetTexture("bear.png"))
-    {
         texVec.push_back(Textures("bear.png"));
-    }
     if(!resourceManager.GetTexture("scenery.png"))
-    {
         texVec.push_back(Textures("scenery.png"));
-    }
     if(!resourceManager.GetTexture("scenery2.png"))
-    {
         texVec.push_back(Textures("scenery2.png"));
-    }
     if(!resourceManager.GetTexture("text.png"))
-    {
         texVec.push_back(Textures("text.png"));
-    }
     if(!resourceManager.GetTexture("snake.png"))
-    {
         texVec.push_back(Textures("snake.png"));
-    }
+
+    if(!resourceManager.GetSound("bear.ogg"))
+        soundVec.push_back(Sounds("bear.ogg"));
+    if(!resourceManager.GetSound("chainsaw.ogg"))
+        soundVec.push_back(Sounds("chainsaw.ogg"));
+    if(!resourceManager.GetSound("chop.ogg"))
+        soundVec.push_back(Sounds("chop.ogg"));
+    if(!resourceManager.GetSound("death.ogg"))
+        soundVec.push_back(Sounds("death.ogg"));
+    if(!resourceManager.GetSound("snake.ogg"))
+        soundVec.push_back(Sounds("snake.ogg"));
+    if(!resourceManager.GetSound("wolfhowl.ogg"))
+        soundVec.push_back(Sounds("wolfhowl.ogg"));
+    if(!resourceManager.GetSound("woodpile.ogg"))
+        soundVec.push_back(Sounds("woodpile.ogg"));
 
     resourceManager.GetOrCreateProgram("textured.vs", "textured.fs");
     resourceManager.GetOrCreateProgram("character.vs", "textured.fs");
@@ -109,7 +121,7 @@ void CreateResources(ResourceManager &resourceManager)
         resourceManager.AddVao("vao plain colour", vaoPlainColour);
     }
 
-    CreateTexture(texVec);
+    CreateTexturesAndSound(texVec, soundVec);
     for(auto object(texVec.begin()); object != texVec.end(); ++object)
     {
         std::shared_ptr<unsigned int> ptr(
@@ -118,9 +130,17 @@ void CreateResources(ResourceManager &resourceManager)
         resourceManager.AddTexture((*object).filename, ptr);
     }
     texVec.clear();
+    for(auto object(soundVec.begin()); object != soundVec.end(); ++object)
+    {
+        std::shared_ptr<unsigned int> ptr(
+                    new unsigned int(object->sound));
+        resourceManager.AddSound((*object).filename, ptr);
+    }
+    soundVec.clear();
 }
 
-void CreateTexture(std::vector<Textures> &textureVec)
+void CreateTexturesAndSound(std::vector<Textures> &textureVec,
+                            std::vector<Sounds> &soundVec)
 {
     std::vector<std::thread> threadVec;
     for(auto & object : textureVec)
@@ -128,6 +148,13 @@ void CreateTexture(std::vector<Textures> &textureVec)
         threadVec.push_back(std::thread(TextureToVec, std::ref(object.filename),
                                         std::ref(object.texVec), std::ref(object.width),
                                         std::ref(object.height)));
+    }
+    ALCcontext * context(alcGetCurrentContext());
+
+    for(auto & object : soundVec)
+    {
+        threadVec.push_back(std::thread(SoundToVec, std::ref(object.filename),
+                                        std::ref(object.sound), context));
     }
     for(auto & thread : threadVec)
     {

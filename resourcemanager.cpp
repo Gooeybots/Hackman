@@ -1,7 +1,9 @@
 #include <GL/glew.h>
+#include <AL/al.h>
 #include "resourcemanager.hpp"
 #include "loadtexture.hpp"
 #include "setupprogram.hpp"
+#include "loadsound.hpp"
 
 ResourceManager::ResourceManager()
 {
@@ -20,6 +22,8 @@ ResourceManager::~ResourceManager()
             glDeleteProgram(object);
         else if(glIsBuffer(object))
             glDeleteBuffers(1, &object);
+        else if(alIsBuffer(object))
+            alDeleteBuffers(1, &object);
     }
     mMap.clear();
 }
@@ -38,6 +42,11 @@ std::shared_ptr<unsigned int> ResourceManager::GetProgram(const std::string &vs,
 std::shared_ptr<unsigned int> ResourceManager::GetTexture(const std::string &filename)
 {
     return GetData(filename);
+}
+
+std::shared_ptr<unsigned int> ResourceManager::GetSound(const std::string &name)
+{
+    return GetData(name);
 }
 
 std::shared_ptr<unsigned int> ResourceManager::GetOrCreateProgram(const std::string &vs, const std::string &fs)
@@ -65,6 +74,19 @@ std::shared_ptr<unsigned int> ResourceManager::GetOrCreateTexture(const std::str
     return texture;
 }
 
+std::shared_ptr<unsigned int> ResourceManager::GetOrCreateSound(const std::string &filename,
+                                                                ALCcontext * context)
+{
+    std::shared_ptr<unsigned int> sound(GetData(filename));
+    if(sound == nullptr)
+    {
+        sound = std::make_shared<unsigned int>(
+                    LoadSound(filename.c_str(), context));
+        AddToMap(filename, sound);
+    }
+    return sound;
+}
+
 std::shared_ptr<unsigned int> ResourceManager::CreateProgram(const std::string &vs, const std::string &fs)
 {
     std::shared_ptr<unsigned int> program(
@@ -82,6 +104,15 @@ std::shared_ptr<unsigned int> ResourceManager::CreateTexture(const std::string &
     return texture;
 }
 
+std::shared_ptr<unsigned int> ResourceManager::CreateSound(const std::string &filename,
+                                                           ALCcontext * context)
+{
+    std::shared_ptr<unsigned int> sound(
+                new unsigned int(LoadSound(filename.c_str(), context)));
+    AddToMap(filename, sound);
+    return sound;
+}
+
 void ResourceManager::AddTexture(const std::string &filename, const std::shared_ptr<unsigned int> &texture)
 {
     AddToMap(filename, texture);
@@ -95,6 +126,11 @@ void ResourceManager::AddProgram(const std::string &vs, const std::string &fs, c
 void ResourceManager::AddVao(const std::string &name, const std::shared_ptr<unsigned int> &vao)
 {
     AddToMap(name, vao);
+}
+
+void ResourceManager::AddSound(const std::string &name, const std::shared_ptr<unsigned int> &sound)
+{
+    AddToMap(name, sound);
 }
 
 std::shared_ptr<unsigned int> ResourceManager::GetData(const std::string &name)
