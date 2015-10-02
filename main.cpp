@@ -15,11 +15,11 @@ int main()
         ALCdevice * device(alcOpenDevice(NULL));
         ALCcontext * context(alcCreateContext(device, NULL));
         alcMakeContextCurrent(context);
-        //bool playing(true); // dont like this but it works
-        //std::thread music(PlayMusic, std::ref(playing), context);
+        bool playing(true); // dont like this but it works
+        std::thread music(PlayMusic, std::ref(playing), context);
         MainMenu();
-        //playing = false;
-        //music.join();   // wait until music has finished its clear up
+        playing = false;
+        music.join();   // wait until music has finished its clear up
         CleanUpAl();
     }
     return 0;

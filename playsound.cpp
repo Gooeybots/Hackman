@@ -5,8 +5,6 @@
 #include "playsound.hpp"
 #include "playmusic.hpp"
 
-void PlaySound(const unsigned int &source);
-
 SoundPlayer::SoundPlayer(ALCcontext * contextIn):mContext(contextIn){}
 
 SoundPlayer::~SoundPlayer()
@@ -36,8 +34,7 @@ void SoundPlayer::AddToPlay(const unsigned int &soundBuffer)
     ++mListCount;
     alSourcei(source, AL_BUFFER, soundBuffer);
     alSourcePlay(source);
-    std::thread sound(PlaySound, std::ref(source));
-    sound.detach();
+    //PlaySound(source);
     CleanUpPlayed();
 }
 
@@ -60,7 +57,7 @@ void SoundPlayer::CleanUpPlayed()
     mMutex.unlock();
 }
 
-void PlaySound(const unsigned int &source)
+void SoundPlayer::PlaySound(const unsigned int &source)
 {
     ALenum sourceState;
     do

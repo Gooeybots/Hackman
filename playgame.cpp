@@ -143,10 +143,13 @@ bool PlayGame(Map &map, ResourceManager &resourceManager, const unsigned int liv
                     {
                         if(UpdateMap(obj, objectVec, map, changedScore, soundPlayer, resourceManager))
                         {
-                            enemyKillFinish = currTime;
+                            if(enemyKillFinish == 0.0f)
+                            {
+                                enemyKillFinish = currTime;
+                                UpdateEnemysDieStatus(objectVec, resourceManager);
+                            }
                             currTime -= 5.0;
                             glfwSetTime(currTime);
-                            UpdateEnemysDieStatus(objectVec, resourceManager);
                         }
                         if(score != changedScore)
                         {

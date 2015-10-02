@@ -14,7 +14,7 @@ public:
     void AddToPlay(const unsigned int &soundBuffer);
     void CleanUpPlayed();
 private:
-
+    void PlaySound(const unsigned int &source);
     void RemoveFromList(const unsigned int &source);
 
     ALCcontext * mContext;
